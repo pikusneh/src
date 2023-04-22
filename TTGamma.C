@@ -1729,7 +1729,7 @@ Double_t x[numPoints] = {NetMass2, NetMass3, NetMass4, NetMass5, NetMass6, NetMa
 Double_t y[numPoints] = {Ac_ele2, Ac_ele3, Ac_ele4, Ac_ele5, Ac_ele6, Ac_ele7, Ac_ele8};
 
 // create arrays to store the x and y errors
-Double_t xErr[numPoints] = {0}; // set to 0 if no x error is needed
+Double_t xErr[numPoints] = {5}; // set to 0 if no x error is needed
 Double_t yErr[numPoints] = {Delta_Ac_ele2, Delta_Ac_ele3, Delta_Ac_ele4, Delta_Ac_ele5, Delta_Ac_ele6, Delta_Ac_ele7, Delta_Ac_ele8};
 
 // create TGraphErrors object and set the values
@@ -1739,6 +1739,7 @@ TGraphErrors* graph = new TGraphErrors(numPoints, x, y, xErr, yErr);
 graph->SetTitle("Asymmetry vs Net Mass");
 graph->GetXaxis()->SetTitle("Net Mass (GeV)");
 graph->GetYaxis()->SetTitle("Asymmetry");
+graph->SetFillColor(kRed);
 graph->SetFillStyle(3144);
 
 
