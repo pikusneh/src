@@ -22,7 +22,9 @@ void DataElectron()
   TH1F *h10ele = new TH1F("h10ele", "antitop", 100, -3, 3);
   TH1F *h9mu = new TH1F("h9mu", "top", 100, -3, 3);
   TH1F *h10mu = new TH1F("h10mu", "antitop", 100, -3, 3);
-  TH1F *h11 = new TH1F("h14", "N+ and N-", 7, 300, 1000);
+  TH1F *h11 = new TH1F("h11", "Rapidity", 4, -3,3);
+
+  TH1F *h14 = new TH1F("h14", "Charge Asymmetry vs M_{t#bar{t}} Electronchannel ", 7, 300, 1000);
 
   // h9->SetLineColor(kYellow+10);
   //  h10->SetLineColor(kCyan+3);
@@ -192,21 +194,39 @@ void DataElectron()
   TLorentzVector AntiTop;
   Float_t YT_ele;
   Float_t Yt_ele;
-  Float_t sub_ele;
+  Float_t rapidity_diff_ele;
   Float_t YT_mu;
   Float_t Yt_mu;
-  Float_t sub_mu;
+  Float_t rapidity_diff_mu;
   Float_t YT;
   Float_t Yt;
-  Float_t sub;
-  Float_t Mass, NetMass;
+  Float_t rapidity_diff;
+  Float_t Mass, NetMass,NetMass1,NetMass2,NetMass3,NetMass4,NetMass5,NetMass6,NetMass7;
+
+  float N_plus_ele1 = 0;
+  float N_plus_ele2 = 0;
+  float N_plus_ele3 = 0;
+  float N_plus_ele4 = 0;
+  float N_plus_ele5 = 0;
+  float N_plus_ele6 = 0;
+  float N_plus_ele7 = 0;
+  
+  float N_minus_ele1 = 0;
+  float N_minus_ele2 = 0;
+  float N_minus_ele3 = 0;
+  float N_minus_ele4 = 0;
+  float N_minus_ele5 = 0;
+  float N_minus_ele6 = 0;
+  float N_minus_ele7 = 0;
+
+
 
   // Set the loop
   for (Int_t i = 0; i < numevents; i++)
   {
     tr->GetEntry(i);
     // define weight
-    weight = evtWeight * PUweight * muEffWeight * eleEffWeight * btagWeight_1a * prefireSF;
+   // weight = evtWeight * PUweight * muEffWeight * eleEffWeight * btagWeight_1a * prefireSF;
 
     /////////////////////////////////Electron channel////////////////////////////////////////
     if (passPresel_Ele && nJet >= 4 && nBJet >= 1 && nPho == 1)
@@ -217,8 +237,7 @@ void DataElectron()
         Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
       }
-      else
-        (TopLep_charge < 0);
+      else if (TopLep_charge < 0)
       {
         AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
@@ -233,19 +252,117 @@ void DataElectron()
       // absolute value of rapidity
       YT_ele = TMath::Abs(Rapidity_T_ele); // top
       Yt_ele = TMath::Abs(Rapidity_t_ele); // antitop
-      sub_ele = YT_ele - Yt_ele;
-      if (sub_ele > 0)
+      rapidity_diff_ele = YT_ele - Yt_ele;
+      h11->Fill(rapidity_diff_ele);
+      if (rapidity_diff_ele > 0)
+
       {
         N_plus_ele++;
       }
-      if (sub_ele < 0)
+      if (rapidity_diff_ele < 0)
       {
         N_minus_ele++;
       }
+      // Fill N+ and N- for different mass range of Top+antitop
 
-      h1->Fill(elePt->at(0), weight);
-      h9ele->Fill(TopLep_eta, weight);  // top quark
-      h10ele->Fill(TopHad_eta, weight); // anti top quark
+      if (NetMass >= 300 && NetMass < 400)
+      {
+
+        if (rapidity_diff_ele > 0)
+        {
+          N_plus_ele1++;
+        }
+        if (rapidity_diff_ele < 0)
+        {
+          N_minus_ele1++;
+        }
+        NetMass1 = NetMass;
+      }
+
+      if (NetMass >= 400 && NetMass < 500)
+      {
+
+        if (rapidity_diff_ele > 0)
+        {
+          N_plus_ele2++;
+        }
+        if (rapidity_diff_ele < 0)
+        {
+          N_minus_ele2++;
+        }
+        NetMass2 = NetMass;
+      }
+
+      if (NetMass >= 500 && NetMass < 600)
+      {
+
+        if (rapidity_diff_ele > 0)
+        {
+          N_plus_ele3++;
+        }
+        if (rapidity_diff_ele < 0)
+        {
+          N_minus_ele3++;
+        }
+        NetMass3 = NetMass;
+      }
+      if (NetMass >= 600 && NetMass < 700)
+      {
+
+        if (rapidity_diff_ele > 0)
+        {
+          N_plus_ele4++;
+        }
+        if (rapidity_diff_ele < 0)
+        {
+          N_minus_ele4++;
+        }
+        NetMass4 = NetMass;
+      }
+      if (NetMass >= 700 && NetMass < 800)
+      {
+
+        if (rapidity_diff_ele > 0)
+        {
+          N_plus_ele5++;
+        }
+        if (rapidity_diff_ele < 0)
+        {
+          N_minus_ele5++;
+        }
+        NetMass5 = NetMass;
+      }
+      if (NetMass >= 800 && NetMass < 900)
+      {
+
+        if (rapidity_diff_ele > 0)
+        {
+          N_plus_ele6 ++;
+        }
+        if (rapidity_diff_ele < 0)
+        {
+          N_minus_ele6++;
+        }
+        NetMass6 = NetMass;
+      }
+      if (NetMass >= 900 && NetMass < 1000)
+      {
+
+        if (rapidity_diff_ele > 0)
+        {
+          N_plus_ele7++;
+        }
+        if (rapidity_diff_ele < 0)
+        {
+          N_minus_ele7++;
+        }
+        NetMass7 = NetMass;
+      }
+      ///////////////////////////////////////////////////////////////End/////////////////////////
+
+      h1->Fill(elePt->at(0));
+      h9ele->Fill(TopLep_eta);  // top quark
+      h10ele->Fill(TopHad_eta); // anti top quark
 
       //////////////////////////////////////Muon Channel////////////////////////////////////////
     }
@@ -258,8 +375,7 @@ void DataElectron()
         AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
       }
 
-      else
-        (TopLep_charge < 0);
+      else if (TopLep_charge < 0)
       {
         AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
@@ -271,12 +387,12 @@ void DataElectron()
       Rapidity_t_mu = AntiTop.Y();
       YT_mu = TMath::Abs(Rapidity_T_mu); // top
       Yt_mu = TMath::Abs(Rapidity_t_mu); // antitop
-      sub_mu = YT_mu - Yt_mu;
-      if (sub_mu > 0)
+      rapidity_diff_mu = YT_mu - Yt_mu;
+      if (rapidity_diff_mu > 0)
       {
         N_plus_mu++;
       }
-      if (sub_mu < 0)
+      if (rapidity_diff_mu < 0)
       {
         N_minus_mu++;
       }
@@ -294,8 +410,7 @@ void DataElectron()
         Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
       }
-      else
-        (TopLep_charge < 0);
+      else if (TopLep_charge < 0)
       {
         AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
@@ -307,12 +422,12 @@ void DataElectron()
       Rapidity_t = AntiTop.Y();
       YT = TMath::Abs(Rapidity_T); // top
       Yt = TMath::Abs(Rapidity_t); // antitop
-      sub = YT - Yt;
-      if (sub > 0)
+      rapidity_diff = YT - Yt;
+      if (rapidity_diff > 0)
       {
         N_plus++;
       }
-      if (sub < 0)
+      if (rapidity_diff < 0)
       {
         N_minus++;
       }
@@ -343,12 +458,11 @@ void DataElectron()
   }
 
   //////////////////////////Value of N+ and N-//////////////////////////////////
-  h11->Fill(N_plus_ele);
-  h11->Fill(N_minus_ele);
-  std::cout << "N_ele+ = " << N_plus_ele << std::endl;
-  std::cout << "N_ele- = " << N_minus_ele << std::endl;
-  std::cout << "N+ = " << N_plus << std::endl;
-  std::cout << "N- = " << N_minus << std::endl;
+  
+  // std::cout << "N_ele+ = " << N_plus_ele << std::endl;
+  // std::cout << "N_ele- = " << N_minus_ele << std::endl;
+  // std::cout << "N+ = " << N_plus << std::endl;
+  // std::cout << "N- = " << N_minus << std::endl;
 
   ////////////////////////Calculate charge asymmetry/////////////////////////////
   ///////////////////////////////////Electron Channel///////////////////////////////
@@ -391,6 +505,174 @@ void DataElectron()
   {
     std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
   }
+/////////////////////////////////////////////////// Electron channel////////////////////////////////////////////
+  Float_t  Ac_ele1, Ac_ele2, Ac_ele3, Ac_ele4, Ac_ele5, Ac_ele6, Ac_ele7;  //////////for mass
+  Float_t sum_ele1 = N_plus_ele1 + N_minus_ele1;
+  Float_t diff_ele1 = N_plus_ele1 - N_minus_ele1;
+  Float_t sum_ele2 = N_plus_ele2 + N_minus_ele2;
+  Float_t diff_ele2 = N_plus_ele2 - N_minus_ele2;
+  Float_t sum_ele3 = N_plus_ele3 + N_minus_ele3;
+  Float_t diff_ele3 = N_plus_ele3 - N_minus_ele3;
+  Float_t sum_ele4 = N_plus_ele4 + N_minus_ele4;
+  Float_t diff_ele4 = N_plus_ele4 - N_minus_ele4;
+  Float_t sum_ele5 = N_plus_ele5 + N_minus_ele5;
+  Float_t diff_ele5 = N_plus_ele5 - N_minus_ele5;
+  Float_t sum_ele6 = N_plus_ele6 + N_minus_ele6;
+  Float_t diff_ele6 = N_plus_ele6 - N_minus_ele6;
+  Float_t sum_ele7 = N_plus_ele7 + N_minus_ele7;
+  Float_t diff_ele7 = N_plus_ele7 - N_minus_ele7;
+
+  //////////////////////////////////Fill h14/////////////////////////////////
+  Float_t Delta_Ac_ele1 = 0.0;
+  if (sum_ele1 != 0)
+  {
+    Ac_ele1 = diff_ele1 / sum_ele1;
+    Float_t Delta_diff_ele1 = sqrt(sum_ele1);
+    Float_t Delta_sum_ele1 = sqrt(sum_ele1);
+    Float_t Delta_N_plus_ele1 = sqrt(N_plus_ele1);
+    Float_t Delta_N_minus_ele1 = sqrt(N_minus_ele1);
+    Float_t Delta_Ac_ele1 = Ac_ele1 * sqrt((Delta_diff_ele1 / diff_ele1) * (Delta_diff_ele1 / diff_ele1) + (Delta_sum_ele1 / sum_ele1) * (Delta_sum_ele1 / sum_ele1));
+    // std::cout << "Asymmetry for electron channel = " << Ac_ele1 << std::endl;
+    // std::cout << "NetMass1 =" << NetMass1 << std::endl;
+    // h14->SetBinContent(h14->FindBin(NetMass1), Ac_ele1);
+    int bin = h14->FindBin(NetMass1);
+    h14->SetBinContent(bin, Ac_ele1);
+    h14->SetBinError(bin, Delta_Ac_ele1);
+  }
+
+  else
+  {
+    std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
+  }
+  
+  Float_t Delta_Ac_ele2 = 0.0;
+  if (sum_ele2 != 0)
+  {
+    Ac_ele2 = diff_ele2 / sum_ele2;
+    Float_t Delta_diff_ele2 = sqrt(sum_ele2);
+    Float_t Delta_sum_ele2 = sqrt(sum_ele2);
+    Float_t Delta_N_plus_ele2 = sqrt(N_plus_ele2);
+    Float_t Delta_N_minus_ele2 = sqrt(N_minus_ele2);
+    Float_t Delta_Ac_ele2 = Ac_ele2 * sqrt((Delta_diff_ele2 / diff_ele2) * (Delta_diff_ele2 / diff_ele2) + (Delta_sum_ele2 / sum_ele2) * (Delta_sum_ele2 / sum_ele2));
+    // std::cout << "Asymmetry for electron channel = " << Ac_ele2 << std::endl;
+    // std::cout << "NetMass2 =" << NetMass2 << std::endl;
+    // h14->SetBinContent(h14->FindBin(NetMass2), Ac_ele2);
+    int bin = h14->FindBin(NetMass2);
+    h14->SetBinContent(bin, Ac_ele2);
+    h14->SetBinError(bin, Delta_Ac_ele2);
+  }
+  else
+  {
+    std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
+  }
+  
+  Float_t Delta_Ac_ele3 = 0.0;
+  if (sum_ele3 != 0)
+  {
+    Ac_ele3 = diff_ele3 / sum_ele3;
+    Float_t Delta_diff_ele3 = sqrt(sum_ele3);
+    Float_t Delta_sum_ele3 = sqrt(sum_ele3);
+    Float_t Delta_N_plus_ele3 = sqrt(N_plus_ele3);
+    Float_t Delta_N_minus_ele3 = sqrt(N_minus_ele3);
+    Float_t Delta_Ac_ele3 = Ac_ele3 * sqrt((Delta_diff_ele3 / diff_ele3) * (Delta_diff_ele3 / diff_ele3) + (Delta_sum_ele3 / sum_ele3) * (Delta_sum_ele3 / sum_ele3));
+    // std::cout << "Asymmetry for electron channel = " << Ac_ele3 << std::endl;
+    // std::cout << "NetMass3 =" << NetMass3 << std::endl;
+    // h14->SetBinContent(h13->FindBin(NetMass3), Ac_ele3);
+    int bin = h14->FindBin(NetMass3);
+    h14->SetBinContent(bin, Ac_ele3);
+    h14->SetBinError(bin, Delta_Ac_ele3);
+  }
+  else
+  {
+    std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
+  }
+  Float_t Delta_Ac_ele4 = 0.0;
+  if (sum_ele4 != 0)
+  {
+    Ac_ele4 = diff_ele4 / sum_ele4;
+    Float_t Delta_diff_ele4 = sqrt(sum_ele4);
+    Float_t Delta_sum_ele4 = sqrt(sum_ele4);
+    Float_t Delta_N_plus_ele4 = sqrt(N_plus_ele4);
+    Float_t Delta_N_minus_ele4 = sqrt(N_minus_ele4);
+    Float_t Delta_Ac_ele4 = Ac_ele4 * sqrt((Delta_diff_ele4 / diff_ele4) * (Delta_diff_ele4 / diff_ele4) + (Delta_sum_ele4 / sum_ele4) * (Delta_sum_ele4 / sum_ele4));
+    //  std::cout << "Asymmetry for electron channel = " << Ac_ele4 << std::endl;
+    // std::cout << "NetMass4 =" << NetMass4 << std::endl;
+    // h14->SetBinContent(h14->FindBin(NetMass4), Ac_ele4);
+    int bin = h14->FindBin(NetMass4);
+    h14->SetBinContent(bin, Ac_ele4);
+    h14->SetBinError(bin, Delta_Ac_ele4);
+  }
+  else
+  {
+    std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
+  }
+
+  
+  Float_t Delta_Ac_ele5 = 0.0;
+  if (sum_ele5 != 0)
+  {
+    Ac_ele5 = diff_ele5 / sum_ele5;
+    Float_t Delta_diff_ele5 = sqrt(sum_ele5);
+    Float_t Delta_sum_ele5 = sqrt(sum_ele5);
+    Float_t Delta_N_plus_ele5 = sqrt(N_plus_ele5);
+    Float_t Delta_N_minus_ele5 = sqrt(N_minus_ele5);
+    Float_t Delta_Ac_ele5 = Ac_ele5 * sqrt((Delta_diff_ele5 / diff_ele5) * (Delta_diff_ele5 / diff_ele5) + (Delta_sum_ele5 / sum_ele5) * (Delta_sum_ele5 / sum_ele5));
+    //  std::cout << "Asymmetry for electron channel = " << Ac_ele5 << std::endl;
+    // std::cout << "NetMass5 =" << NetMass5 << std::endl;
+    // h14->SetBinContent(h14->FindBin(NetMass5), Ac_ele5);
+    int bin = h14->FindBin(NetMass5);
+    h14->SetBinContent(bin, Ac_ele5);
+    h14->SetBinError(bin, Delta_Ac_ele5);
+  }
+
+  else
+  {
+    std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
+  }
+ 
+  Float_t Delta_Ac_ele6 = 0.0;
+  if (sum_ele6 != 0)
+  {
+    Ac_ele6 = diff_ele6 / sum_ele6;
+    Float_t Delta_diff_ele6 = sqrt(sum_ele6);
+    Float_t Delta_sum_ele6 = sqrt(sum_ele6);
+    Float_t Delta_N_plus_ele6 = sqrt(N_plus_ele6);
+    Float_t Delta_N_minus_ele6 = sqrt(N_minus_ele6);
+    Float_t Delta_Ac_ele6 = Ac_ele6 * sqrt((Delta_diff_ele6 / diff_ele6) * (Delta_diff_ele6 / diff_ele6) + (Delta_sum_ele6 / sum_ele6) * (Delta_sum_ele6 / sum_ele6));
+    //  std::cout << "Asymmetry for electron channel = " << Ac_ele6 << std::endl;
+    //  std::cout << "NetMass6 =" << NetMass6 << std::endl;
+    // h14->SetBinContent(h14->FindBin(NetMass6), Ac_ele6);
+    int bin = h14->FindBin(NetMass6);
+    h14->SetBinContent(bin, Ac_ele6);
+    h14->SetBinError(bin, Delta_Ac_ele6);
+  }
+  else
+  {
+    std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
+  }
+
+  Float_t Delta_Ac_ele7 = 0.0;
+  if (sum_ele7 != 0)
+  {
+    Ac_ele7 = diff_ele7 / sum_ele7;
+    Float_t Delta_diff_ele7 = sqrt(sum_ele7);
+    Float_t Delta_sum_ele7 = sqrt(sum_ele7);
+    Float_t Delta_N_plus_ele7 = sqrt(N_plus_ele7);
+    Float_t Delta_N_minus_ele7 = sqrt(N_minus_ele7);
+    Float_t Delta_Ac_ele7 = Ac_ele7 * sqrt((Delta_diff_ele7 / diff_ele7) * (Delta_diff_ele7 / diff_ele7) + (Delta_sum_ele7 / sum_ele7) * (Delta_sum_ele7 / sum_ele7));
+    //  std::cout << "Asymmetry for electron channel = " << Ac_ele7 << std::endl;
+    //  std::cout << "NetMass7 =" << NetMass7 << std::endl;
+    // h14->SetBinContent(h14->FindBin(NetMass7), Ac_ele7);
+    int bin = h14->FindBin(NetMass7);
+    h14->SetBinContent(bin, Ac_ele7);
+    h14->SetBinError(bin, Delta_Ac_ele7);
+  }
+  else
+  {
+    std::cout << "Cannot calculate asymmetry: sum is zero" << std::endl;
+  }
+ 
+
 
   h9->Write();
   h10->Write();
@@ -399,6 +681,7 @@ void DataElectron()
   h9mu->Write();
   h10mu->Write();
   h11->Write();
+  h14->Write();
   // Canvas
   TCanvas *c1 = new TCanvas();
   c1->cd();
@@ -479,7 +762,30 @@ void DataElectron()
   c15->cd();
   h11->Draw();
   c15->Update();
-  c15->SaveAs("/eos/user/s/ssnehshu/plots/DataEle/N+and N-.png");
+  c15->SaveAs("/eos/user/s/ssnehshu/plots/DataEle/Rapidity.png");
+
+
+  TCanvas *c17 = new TCanvas();
+  c17->cd();
+  h14->GetXaxis()->SetTitle("t#bar{t}_{mass} (GeV)");
+  h14->GetXaxis()->SetTitleSize(0.04);
+  h14->GetXaxis()->SetLabelSize(0.03);
+  h14->GetYaxis()->SetTitle("A_{c_{ele}}");
+  h14->GetYaxis()->SetTitleOffset(1.1);
+  h14->GetYaxis()->SetTitleSize(0.04);
+  h14->GetYaxis()->SetLabelSize(0.03);
+
+  h14->SetMarkerSize(1);
+  h14->SetMarkerColor(kRed);
+  h14->SetLineWidth(1);
+  gStyle->SetEndErrorSize(1);
+  gStyle->SetErrorX(.3);
+
+  // h14->SetOption("E3");
+
+  h14->Draw("E1");  
+  c17->Update();
+  c17->SaveAs("/eos/user/s/ssnehshu/plots/DataEle/Ac_ele vs ttbarmass.png");
 
   fl2->Close();
 

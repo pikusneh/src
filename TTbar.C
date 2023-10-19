@@ -34,6 +34,8 @@ void TTbar()
   TH1F *h19 = new TH1F("h19", "Charge Asymmetry vs TTbar Transverse Momentum Muonchannel-TTbar Sample", 4, -200, 1000);
   TH1F *h21 = new TH1F("h21", "Charge Asymmetry vs Photon Transverse Momentum Electronchannel-TTbar Sample", 5, -150, 800);
   TH1F *h22 = new TH1F("h22", "Charge Asymmetry vs Photon Transverse Momentum Muonchannel-TTbar Sample", 5, -150, 800);
+  TH1F *h25 = new TH1F("h25","Rapidity",4,-3,3);
+  TH1F *h26 = new TH1F("h26","mu_Rapidity",4,-3,3);
   h14->SetMarkerStyle(21);
   h17->SetMarkerStyle(21);
   h18->SetMarkerStyle(21);
@@ -50,6 +52,8 @@ void TTbar()
   h9mu->SetLineColor(kBlack);
   h10ele->SetLineColor(kBlack);
   h10mu->SetLineColor(kBlack);
+  h25->SetOption("hist");
+  h26->SetOption("hist");
 
   // Set fill color
   h9ele->SetFillColor(kRed);
@@ -317,251 +321,255 @@ void TTbar()
       //////////////Tlorentz for photon///////////////////////
       TLorentzVector Photon;
       Photon.SetPtEtaPhiM(phoEt->at(0), phoEta->at(0), phoPhi->at(0), 0.0);
-      PhoRapidity = Photon.Y();
+      PhoRapidity = Photon.Rapidity();
       YPho = TMath::Abs(PhoRapidity);
       PhoPt_ele = Photon.Pt();
 
-      if (TopLep_charge > 0)
+      if (YPho >= 1)
       {
-        Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
-        AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
-      }
-      else
-        (TopLep_charge < 0);
-      {
-        AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
-        Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
-      }
-      TLorentzVector TopAntiTop = Top + AntiTop;
-      Mass = TopAntiTop.M();
-      NetMass = Mass;
-      Pt_ele = TopAntiTop.Pt();
 
-      ////////////////////////////////////////// rapidity calculation/////////////////////////////////////////////
-      Rapidity_T_ele = Top.Y();
-      Rapidity_t_ele = AntiTop.Y();
-      // absolute value of rapidity
-      YT_ele = TMath::Abs(Rapidity_T_ele); // top
-      Yt_ele = TMath::Abs(Rapidity_t_ele); // antitop
-      sub_ele = YT_ele - Yt_ele;
+        if (TopLep_charge > 0)
+        {
+          Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
+          AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
+        }
+        else if (TopLep_charge < 0)
+        {
+          AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
+          Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
+        }
+        TLorentzVector TopAntiTop = Top + AntiTop;
+        Mass = TopAntiTop.M();
+        NetMass = Mass;
+        Pt_ele = TopAntiTop.Pt();
 
-      // Fill N+ and N- with weight for overall electron channel/////////////////
-      // we will get only one value of N+ and N-
+        ////////////////////////////////////////// rapidity calculation/////////////////////////////////////////////
+        Rapidity_T_ele = Top.Rapidity();
+        Rapidity_t_ele = AntiTop.Rapidity();
+        // absolute value of rapidity
+        YT_ele = TMath::Abs(Rapidity_T_ele); // top
+        Yt_ele = TMath::Abs(Rapidity_t_ele); // antitop
+        sub_ele = YT_ele - Yt_ele;
+        h25->Fill(sub_ele,weight);
 
-      if (sub_ele > 0)
-      {
-        N_plus_ele = N_plus_ele + weight;
-      }
-      if (sub_ele < 0)
-      {
-        N_minus_ele = N_minus_ele + weight;
-      }
-
-      // Fill N+ and N- for different mass range of Top+antitop
-
-      if (NetMass >= 300 && NetMass < 400)
-      {
+        // Fill N+ and N- with weight for overall electron channel/////////////////
+        // we will get only one value of N+ and N-
 
         if (sub_ele > 0)
         {
-          N_plus_ele2 = N_plus_ele2 + weight;
+          N_plus_ele = N_plus_ele + weight;
         }
         if (sub_ele < 0)
         {
-          N_minus_ele2 = N_minus_ele2 + weight;
+          N_minus_ele = N_minus_ele + weight;
         }
-        NetMass2 = NetMass;
-      }
 
-      if (NetMass >= 400 && NetMass < 500)
-      {
+        // Fill N+ and N- for different mass range of Top+antitop
 
-        if (sub_ele > 0)
+        if (NetMass >= 300 && NetMass < 400)
         {
-          N_plus_ele3 = N_plus_ele3 + weight;
-        }
-        if (sub_ele < 0)
-        {
-          N_minus_ele3 = N_minus_ele3 + weight;
-        }
-        NetMass3 = NetMass;
-      }
 
-      if (NetMass >= 500 && NetMass < 600)
-      {
+          if (sub_ele > 0)
+          {
+            N_plus_ele2 = N_plus_ele2 + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele2 = N_minus_ele2 + weight;
+          }
+          NetMass2 = NetMass;
+        }
 
-        if (sub_ele > 0)
+        if (NetMass >= 400 && NetMass < 500)
         {
-          N_plus_ele4 = N_plus_ele4 + weight;
-        }
-        if (sub_ele < 0)
-        {
-          N_minus_ele4 = N_minus_ele4 + weight;
-        }
-        NetMass4 = NetMass;
-      }
-      if (NetMass >= 600 && NetMass < 700)
-      {
 
-        if (sub_ele > 0)
-        {
-          N_plus_ele5 = N_plus_ele5 + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele3 = N_plus_ele3 + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele3 = N_minus_ele3 + weight;
+          }
+          NetMass3 = NetMass;
         }
-        if (sub_ele < 0)
-        {
-          N_minus_ele5 = N_minus_ele5 + weight;
-        }
-        NetMass5 = NetMass;
-      }
-      if (NetMass >= 700 && NetMass < 800)
-      {
 
-        if (sub_ele > 0)
+        if (NetMass >= 500 && NetMass < 600)
         {
-          N_plus_ele6 = N_plus_ele6 + weight;
-        }
-        if (sub_ele < 0)
-        {
-          N_minus_ele6 = N_minus_ele6 + weight;
-        }
-        NetMass6 = NetMass;
-      }
-      if (NetMass >= 800 && NetMass < 900)
-      {
 
-        if (sub_ele > 0)
-        {
-          N_plus_ele7 = N_plus_ele7 + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele4 = N_plus_ele4 + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele4 = N_minus_ele4 + weight;
+          }
+          NetMass4 = NetMass;
         }
-        if (sub_ele < 0)
+        if (NetMass >= 600 && NetMass < 700)
         {
-          N_minus_ele7 = N_minus_ele7 + weight;
-        }
-        NetMass7 = NetMass;
-      }
-      if (NetMass >= 900 && NetMass < 1000)
-      {
 
-        if (sub_ele > 0)
-        {
-          N_plus_ele8 = N_plus_ele8 + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele5 = N_plus_ele5 + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele5 = N_minus_ele5 + weight;
+          }
+          NetMass5 = NetMass;
         }
-        if (sub_ele < 0)
+        if (NetMass >= 700 && NetMass < 800)
         {
-          N_minus_ele8 = N_minus_ele8 + weight;
-        }
-        NetMass8 = NetMass;
-      }
 
-      /////////////////////////////////////////////////////fill N+ and N- value in difeerent range of Pt for electron channel///////////////////////////////////
-      if (Pt_ele >= -200 && Pt_ele < 0)
-      {
+          if (sub_ele > 0)
+          {
+            N_plus_ele6 = N_plus_ele6 + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele6 = N_minus_ele6 + weight;
+          }
+          NetMass6 = NetMass;
+        }
+        if (NetMass >= 800 && NetMass < 900)
+        {
 
-        if (sub_ele > 0)
-        {
-          N_plus_ele1pt = N_plus_ele1pt + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele7 = N_plus_ele7 + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele7 = N_minus_ele7 + weight;
+          }
+          NetMass7 = NetMass;
         }
-        if (sub_ele < 0)
+        if (NetMass >= 900 && NetMass < 1000)
         {
-          N_minus_ele1pt = N_minus_ele1pt + weight;
-        }
-        Pt_ele1 = Pt_ele;
-      }
 
-      if (Pt_ele >= 0 && Pt_ele < 200)
-      {
+          if (sub_ele > 0)
+          {
+            N_plus_ele8 = N_plus_ele8 + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele8 = N_minus_ele8 + weight;
+          }
+          NetMass8 = NetMass;
+        }
 
-        if (sub_ele > 0)
+        /////////////////////////////////////////////////////fill N+ and N- value in difeerent range of Pt for electron channel///////////////////////////////////
+        if (Pt_ele >= -200 && Pt_ele < 0)
         {
-          N_plus_ele2pt = N_plus_ele2pt + weight;
-        }
-        if (sub_ele < 0)
-        {
-          N_minus_ele2pt = N_minus_ele2pt + weight;
-        }
-        Pt_ele2 = Pt_ele;
-      }
 
-      if (Pt_ele >= 200 && Pt_ele < 400)
-      {
+          if (sub_ele > 0)
+          {
+            N_plus_ele1pt = N_plus_ele1pt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele1pt = N_minus_ele1pt + weight;
+          }
+          Pt_ele1 = Pt_ele;
+        }
 
-        if (sub_ele > 0)
+        if (Pt_ele >= 0 && Pt_ele < 200)
         {
-          N_plus_ele3pt = N_plus_ele3pt + weight;
-        }
-        if (sub_ele < 0)
-        {
-          N_minus_ele3pt = N_minus_ele3pt + weight;
-        }
-        Pt_ele3 = Pt_ele;
-      }
 
-      if (Pt_ele >= 400 && Pt_ele < 1000)
-      {
+          if (sub_ele > 0)
+          {
+            N_plus_ele2pt = N_plus_ele2pt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele2pt = N_minus_ele2pt + weight;
+          }
+          Pt_ele2 = Pt_ele;
+        }
 
-        if (sub_ele > 0)
+        if (Pt_ele >= 200 && Pt_ele < 400)
         {
-          N_plus_ele4pt = N_plus_ele4pt + weight;
-        }
-        if (sub_ele < 0)
-        {
-          N_minus_ele4pt = N_minus_ele4pt + weight;
-        }
-        Pt_ele4 = Pt_ele;
-      }
-      //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      /////////////////////////////////////////////////////fill N+ and N- value in different range of PhoPt for electron channel///////////////////////////////////
-      if (PhoPt_ele >= -100 && PhoPt_ele < 100)
-      {
-        if (sub_ele > 0)
-        {
-          N_plus_ele1phopt = N_plus_ele1phopt + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele3pt = N_plus_ele3pt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele3pt = N_minus_ele3pt + weight;
+          }
+          Pt_ele3 = Pt_ele;
         }
-        if (sub_ele < 0)
-        {
-          N_minus_ele1phopt = N_minus_ele1phopt + weight;
-        }
-        PhoPt_ele1 = PhoPt_ele;
-      }
 
-      if (PhoPt_ele >= 100 && PhoPt_ele < 300)
-      {
-        if (sub_ele > 0)
+        if (Pt_ele >= 400 && Pt_ele < 1000)
         {
-          N_plus_ele2phopt = N_plus_ele2phopt + weight;
-        }
-        if (sub_ele < 0)
-        {
-          N_minus_ele2phopt = N_minus_ele2phopt + weight;
-        }
-        PhoPt_ele2 = PhoPt_ele;
-      }
 
-      if (PhoPt_ele >= 300 && PhoPt_ele < 500)
-      {
-        if (sub_ele > 0)
-        {
-          N_plus_ele3phopt = N_plus_ele3phopt + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele4pt = N_plus_ele4pt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele4pt = N_minus_ele4pt + weight;
+          }
+          Pt_ele4 = Pt_ele;
         }
-        if (sub_ele < 0)
-        {
-          N_minus_ele3phopt = N_minus_ele3phopt + weight;
-        }
-        PhoPt_ele3 = PhoPt_ele;
-      }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      if (PhoPt_ele >= 500 && PhoPt_ele < 600)
-      {
-        if (sub_ele > 0)
+        /////////////////////////////////////////////////////fill N+ and N- value in different range of PhoPt for electron channel///////////////////////////////////
+        if (PhoPt_ele >= -100 && PhoPt_ele < 100)
         {
-          N_plus_ele4phopt = N_plus_ele4phopt + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele1phopt = N_plus_ele1phopt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele1phopt = N_minus_ele1phopt + weight;
+          }
+          PhoPt_ele1 = PhoPt_ele;
         }
-        if (sub_ele < 0)
+
+        if (PhoPt_ele >= 100 && PhoPt_ele < 300)
         {
-          N_minus_ele4phopt = N_minus_ele4phopt + weight;
+          if (sub_ele > 0)
+          {
+            N_plus_ele2phopt = N_plus_ele2phopt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele2phopt = N_minus_ele2phopt + weight;
+          }
+          PhoPt_ele2 = PhoPt_ele;
         }
-        PhoPt_ele4 = PhoPt_ele;
+
+        if (PhoPt_ele >= 300 && PhoPt_ele < 500)
+        {
+          if (sub_ele > 0)
+          {
+            N_plus_ele3phopt = N_plus_ele3phopt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele3phopt = N_minus_ele3phopt + weight;
+          }
+          PhoPt_ele3 = PhoPt_ele;
+        }
+
+        if (PhoPt_ele >= 500 && PhoPt_ele < 600)
+        {
+          if (sub_ele > 0)
+          {
+            N_plus_ele4phopt = N_plus_ele4phopt + weight;
+          }
+          if (sub_ele < 0)
+          {
+            N_minus_ele4phopt = N_minus_ele4phopt + weight;
+          }
+          PhoPt_ele4 = PhoPt_ele;
+        }
       }
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -584,247 +592,250 @@ void TTbar()
       //////////////Tlorentz for photon///////////////////////
       TLorentzVector Photon;
       Photon.SetPtEtaPhiM(phoEt->at(0), phoEta->at(0), phoPhi->at(0), 0.0);
-      PhoRapidity = Photon.Y();
+      PhoRapidity = Photon.Rapidity();
       YPho = TMath::Abs(PhoRapidity);
       PhoPt_mu = Photon.Pt();
-
-      if (TopLep_charge > 0)
+      if (YPho >= 1)
       {
-        Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
-        AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
-      }
 
-      else
-        (TopLep_charge < 0);
-      {
-        AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
-        Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
-      }
-      TLorentzVector TopAntiTop = Top + AntiTop;
-      Mass = TopAntiTop.M();
-      Pt_mu = TopAntiTop.Pt();
-      NetMass = Mass;
-      /////rapidity calculation////////
-      Rapidity_T_mu = Top.Y();
-      Rapidity_t_mu = AntiTop.Y();
-      // absolute value of rapidity
-      YT_mu = TMath::Abs(Rapidity_T_mu); // top
-      Yt_mu = TMath::Abs(Rapidity_t_mu); // antitop
-      sub_mu = YT_mu - Yt_mu;
+        if (TopLep_charge > 0)
+        {
+          Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
+          AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
+        }
 
-      // Fill N+ and N- with weight for overall muon channel/////////////////
+        else if (TopLep_charge < 0)
+        {
+          AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
+          Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
+        }
+        TLorentzVector TopAntiTop = Top + AntiTop;
+        Mass = TopAntiTop.M();
+        Pt_mu = TopAntiTop.Pt();
+        NetMass = Mass;
+        /////rapidity calculation////////
+        Rapidity_T_mu = Top.Rapidity();
+        Rapidity_t_mu = AntiTop.Rapidity();
+        // absolute value of rapidity
+        YT_mu = TMath::Abs(Rapidity_T_mu); // top
+        Yt_mu = TMath::Abs(Rapidity_t_mu); // antitop
+        sub_mu = YT_mu - Yt_mu;
+        h26->Fill(sub_mu,weight);
 
-      if (sub_mu > 0)
-      {
-        N_plus_mu = N_plus_mu + weight;
-      }
-      if (sub_mu < 0)
-      {
-        N_minus_mu = N_minus_mu + weight;
-      }
-
-      if (NetMass >= 300 && NetMass < 400)
-      {
+        // Fill N+ and N- with weight for overall muon channel/////////////////
 
         if (sub_mu > 0)
         {
-          N_plus_mu2 = N_plus_mu2 + weight;
+          N_plus_mu = N_plus_mu + weight;
         }
         if (sub_mu < 0)
         {
-          N_minus_mu2 = N_minus_mu2 + weight;
+          N_minus_mu = N_minus_mu + weight;
         }
-        NetMass2 = NetMass;
-      }
 
-      if (NetMass >= 400 && NetMass < 500)
-      {
+        if (NetMass >= 300 && NetMass < 400)
+        {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu3 = N_plus_mu3 + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu2 = N_plus_mu2 + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu2 = N_minus_mu2 + weight;
+          }
+          NetMass2 = NetMass;
         }
-        if (sub_mu < 0)
-        {
-          N_minus_mu3 = N_minus_mu3 + weight;
-        }
-        NetMass3 = NetMass;
-      }
 
-      if (NetMass >= 500 && NetMass < 600)
-      {
+        if (NetMass >= 400 && NetMass < 500)
+        {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu4 = N_plus_mu4 + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu3 = N_plus_mu3 + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu3 = N_minus_mu3 + weight;
+          }
+          NetMass3 = NetMass;
         }
-        if (sub_mu < 0)
-        {
-          N_minus_mu4 = N_minus_mu4 + weight;
-        }
-        NetMass4 = NetMass;
-      }
-      if (NetMass >= 600 && NetMass < 700)
-      {
 
-        if (sub_mu > 0)
+        if (NetMass >= 500 && NetMass < 600)
         {
-          N_plus_mu5 = N_plus_mu5 + weight;
-        }
-        if (sub_mu < 0)
-        {
-          N_minus_mu5 = N_minus_mu5 + weight;
-        }
-        NetMass5 = NetMass;
-      }
-      if (NetMass >= 700 && NetMass < 800)
-      {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu6 = N_plus_mu6 + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu4 = N_plus_mu4 + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu4 = N_minus_mu4 + weight;
+          }
+          NetMass4 = NetMass;
         }
-        if (sub_mu < 0)
+        if (NetMass >= 600 && NetMass < 700)
         {
-          N_minus_mu6 = N_minus_mu6 + weight;
-        }
-        NetMass6 = NetMass;
-      }
-      if (NetMass >= 800 && NetMass < 900)
-      {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu7 = N_plus_mu7 + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu5 = N_plus_mu5 + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu5 = N_minus_mu5 + weight;
+          }
+          NetMass5 = NetMass;
         }
-        if (sub_mu < 0)
+        if (NetMass >= 700 && NetMass < 800)
         {
-          N_minus_mu7 = N_minus_mu7 + weight;
-        }
-        NetMass7 = NetMass;
-      }
-      if (NetMass >= 900 && NetMass < 1000)
-      {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu8 = N_plus_mu8 + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu6 = N_plus_mu6 + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu6 = N_minus_mu6 + weight;
+          }
+          NetMass6 = NetMass;
         }
-        if (sub_mu < 0)
+        if (NetMass >= 800 && NetMass < 900)
         {
-          N_minus_mu8 = N_minus_mu8 + weight;
-        }
-        NetMass8 = NetMass;
-      }
 
-      /////////////////////////////////////////////////////fill N+ and N- value in difeerent range of Pt for muon channel///////////////////////////////////
-      if (Pt_mu >= -200 && Pt_mu < 0)
-      {
+          if (sub_mu > 0)
+          {
+            N_plus_mu7 = N_plus_mu7 + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu7 = N_minus_mu7 + weight;
+          }
+          NetMass7 = NetMass;
+        }
+        if (NetMass >= 900 && NetMass < 1000)
+        {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu1pt = N_plus_mu1pt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu8 = N_plus_mu8 + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu8 = N_minus_mu8 + weight;
+          }
+          NetMass8 = NetMass;
         }
-        if (sub_mu < 0)
-        {
-          N_minus_mu1pt = N_minus_mu1pt + weight;
-        }
-        Pt_mu1 = Pt_mu;
-      }
 
-      if (Pt_mu >= 0 && Pt_mu < 200)
-      {
+        /////////////////////////////////////////////////////fill N+ and N- value in difeerent range of Pt for muon channel///////////////////////////////////
+        if (Pt_mu >= -200 && Pt_mu < 0)
+        {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu2pt = N_plus_mu2pt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu1pt = N_plus_mu1pt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu1pt = N_minus_mu1pt + weight;
+          }
+          Pt_mu1 = Pt_mu;
         }
-        if (sub_mu < 0)
-        {
-          N_minus_mu2pt = N_minus_mu2pt + weight;
-        }
-        Pt_mu2 = Pt_mu;
-      }
 
-      if (Pt_mu >= 200 && Pt_mu < 400)
-      {
+        if (Pt_mu >= 0 && Pt_mu < 200)
+        {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu3pt = N_plus_mu3pt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu2pt = N_plus_mu2pt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu2pt = N_minus_mu2pt + weight;
+          }
+          Pt_mu2 = Pt_mu;
         }
-        if (sub_mu < 0)
-        {
-          N_minus_mu3pt = N_minus_mu3pt + weight;
-        }
-        Pt_mu3 = Pt_mu;
-      }
 
-      if (Pt_mu >= 400 && Pt_mu < 1000)
-      {
+        if (Pt_mu >= 200 && Pt_mu < 400)
+        {
 
-        if (sub_mu > 0)
-        {
-          N_plus_mu4pt = N_plus_mu4pt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu3pt = N_plus_mu3pt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu3pt = N_minus_mu3pt + weight;
+          }
+          Pt_mu3 = Pt_mu;
         }
-        if (sub_mu < 0)
-        {
-          N_minus_mu4pt = N_minus_mu4pt + weight;
-        }
-        Pt_mu4 = Pt_mu;
-      }
-      //////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //////////////////////////////////////////fill N+ and N- value in different range of PhoPt for muon channel/
-      if (PhoPt_mu >= -100 && PhoPt_mu < 100)
-      {
-        if (sub_mu > 0)
-        {
-          N_plus_mu1phopt = N_plus_mu1phopt + weight;
-        }
-        if (sub_mu < 0)
-        {
-          N_minus_mu1phopt = N_minus_mu1phopt + weight;
-        }
-        PhoPt_mu1 = PhoPt_mu;
-      }
 
-      if (PhoPt_mu >= 100 && PhoPt_mu < 300)
-      {
-        if (sub_mu > 0)
+        if (Pt_mu >= 400 && Pt_mu < 1000)
         {
-          N_plus_mu2phopt = N_plus_mu2phopt + weight;
-        }
-        if (sub_mu < 0)
-        {
-          N_minus_mu2phopt = N_minus_mu2phopt + weight;
-        }
-        PhoPt_mu2 = PhoPt_mu;
-      }
 
-      if (PhoPt_mu >= 300 && PhoPt_mu < 500)
-      {
-        if (sub_mu > 0)
-        {
-          N_plus_mu3phopt = N_plus_mu3phopt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu4pt = N_plus_mu4pt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu4pt = N_minus_mu4pt + weight;
+          }
+          Pt_mu4 = Pt_mu;
         }
-        if (sub_mu < 0)
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////fill N+ and N- value in different range of PhoPt for muon channel/
+        if (PhoPt_mu >= -100 && PhoPt_mu < 100)
         {
-          N_minus_mu3phopt = N_minus_mu3phopt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu1phopt = N_plus_mu1phopt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu1phopt = N_minus_mu1phopt + weight;
+          }
+          PhoPt_mu1 = PhoPt_mu;
         }
-        PhoPt_mu3 = PhoPt_mu;
-      }
 
-      if (PhoPt_mu >= 500 && PhoPt_mu < 600)
-      {
-        if (sub_mu > 0)
+        if (PhoPt_mu >= 100 && PhoPt_mu < 300)
         {
-          N_plus_mu4phopt = N_plus_mu4phopt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu2phopt = N_plus_mu2phopt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu2phopt = N_minus_mu2phopt + weight;
+          }
+          PhoPt_mu2 = PhoPt_mu;
         }
-        if (sub_mu < 0)
+
+        if (PhoPt_mu >= 300 && PhoPt_mu < 500)
         {
-          N_minus_mu4phopt = N_minus_mu4phopt + weight;
+          if (sub_mu > 0)
+          {
+            N_plus_mu3phopt = N_plus_mu3phopt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu3phopt = N_minus_mu3phopt + weight;
+          }
+          PhoPt_mu3 = PhoPt_mu;
         }
-        PhoPt_mu4 = PhoPt_mu;
+
+        if (PhoPt_mu >= 500 && PhoPt_mu < 600)
+        {
+          if (sub_mu > 0)
+          {
+            N_plus_mu4phopt = N_plus_mu4phopt + weight;
+          }
+          if (sub_mu < 0)
+          {
+            N_minus_mu4phopt = N_minus_mu4phopt + weight;
+          }
+          PhoPt_mu4 = PhoPt_mu;
+        }
       }
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -852,8 +863,8 @@ void TTbar()
       TLorentzVector TopAntiTop = Top + AntiTop;
       Mass = TopAntiTop.M();
       NetMass = Mass;
-      Rapidity_T1 = Top.Y();
-      Rapidity_t1 = AntiTop.Y();
+      Rapidity_T1 = Top.Rapidity();
+      Rapidity_t1 = AntiTop.Rapidity();
       YT1 = TMath::Abs(Rapidity_T1); // top
       Yt1 = TMath::Abs(Rapidity_t1); // antitop
       sub1 = YT1 - Yt1;
@@ -876,7 +887,7 @@ void TTbar()
       //////////////Tlorentz for photon///////////////////////
       TLorentzVector Photon;
       Photon.SetPtEtaPhiM(phoEt->at(0), phoEta->at(0), phoPhi->at(0), 0.0);
-      PhoRapidity = Photon.Y();
+      PhoRapidity = Photon.Rapidity();
       YPho = TMath::Abs(PhoRapidity);
       PhoPt = Photon.Pt();
       if (YPho >= 1)
@@ -888,8 +899,7 @@ void TTbar()
           Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
           AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
         }
-        else
-          (TopLep_charge < 0);
+        else if (TopLep_charge < 0)
         {
           AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
           Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
@@ -898,8 +908,8 @@ void TTbar()
         TLorentzVector TopAntiTop = Top + AntiTop;
         Mass = TopAntiTop.M();
         NetMass = Mass;
-        Rapidity_T2 = Top.Y();
-        Rapidity_t2 = AntiTop.Y();
+        Rapidity_T2 = Top.Rapidity();
+        Rapidity_t2 = AntiTop.Rapidity();
         YT2 = TMath::Abs(Rapidity_T2); // top
         Yt2 = TMath::Abs(Rapidity_t2); // antitop
         sub2 = YT2 - Yt2;
@@ -993,13 +1003,18 @@ void TTbar()
   Float_t sum_ele4phopt = N_plus_ele4phopt + N_minus_ele4phopt;
   Float_t diff_ele4phopt = N_plus_ele4phopt - N_minus_ele4phopt;
   ////////////////////////////////////////////
-  Float_t sum = N_plus3 + N_minus3;
-  Float_t diff = N_plus3 - N_minus3;
+  Float_t sum = N_plus4 + N_minus4;
+  Float_t diff = N_plus4 - N_minus4;
 
   if (sum != 0)
   {
     Ac = diff / sum;
-    std::cout << "Asymmetry for TTbar = " << Ac << std::endl;
+    Float_t Delta_diff = sqrt(sum);
+    Float_t Delta_sum = sqrt(sum);
+    Float_t Delta_N_plus = sqrt(N_plus4);
+    Float_t Delta_N_minus = sqrt(N_minus4);
+    Float_t Delta_Ac = Ac * sqrt((Delta_diff / diff) * (Delta_diff / diff) + (Delta_sum / sum) * (Delta_sum / sum));
+    std::cout << "Asymmetry for TTbar = " << Ac << " ± " << Delta_Ac << std::endl;
   }
   else
   {
@@ -1010,7 +1025,12 @@ void TTbar()
   if (sum_ele != 0)
   {
     Ac_ele = diff_ele / sum_ele;
-    std::cout << "Asymmetry for electron channel = " << Ac_ele << std::endl;
+    Float_t Delta_diff_ele = sqrt(sum_ele);
+    Float_t Delta_sum_ele = sqrt(sum_ele);
+    Float_t Delta_N_plus1 = sqrt(N_plus_ele);
+    Float_t Delta_N_minus1 = sqrt(N_minus_ele);
+    Float_t Delta_Ac_ele = Ac_ele * sqrt((Delta_diff_ele / diff_ele) * (Delta_diff_ele / diff_ele) + (Delta_sum_ele / sum_ele) * (Delta_sum_ele / sum_ele));
+    std::cout << "Asymmetry for electron channel = " << Ac_ele << " ± " << Delta_Ac_ele << std::endl;
   }
   else
   {
@@ -1388,7 +1408,12 @@ void TTbar()
   if (sum_mu != 0)
   {
     Float_t Ac_mu = diff_mu / sum_mu;
-    std::cout << "Asymmetry for muon channel = " << Ac_mu << std::endl;
+    Float_t Delta_diff_mu = sqrt(sum_mu);
+    Float_t Delta_sum_mu = sqrt(sum_mu);
+    Float_t Delta_N_plus = sqrt(N_plus4);
+    Float_t Delta_N_minus = sqrt(N_minus4);
+    Float_t Delta_Ac_mu = Ac_mu * sqrt((Delta_diff_mu / diff_mu) * (Delta_diff_mu / diff_mu) + (Delta_sum_mu / sum_mu) * (Delta_sum_mu / sum_mu));
+    std::cout << "Asymmetry for muon channel = " << Ac_mu << " ± " << Delta_Ac_mu << std::endl;
   }
   else
   {
@@ -1729,6 +1754,8 @@ void TTbar()
   h19->Write();
   h21->Write();
   h22->Write();
+  h25->Write();
+  h26->Write();
   tree2->Write();
 
   ///////////////////////////////// Canvas//////////////////////////////////
@@ -1972,11 +1999,17 @@ void TTbar()
   c24->Update();
   c24->SaveAs("/eos/user/s/ssnehshu/plots/TTbar/Ac_mu vs Pho_pt_mu.png");
 
-  /*TCanvas *c26 = new TCanvas();
+  TCanvas *c25 = new TCanvas();
+  c25->cd();
+  h25->Draw();
+  c25->Update();
+  c25->SaveAs("/eos/user/s/ssnehshu/plots/TTbar/Rapidity_ele.png");
+
+  TCanvas *c26 = new TCanvas();
   c26->cd();
-  h23->Draw();
+  h26->Draw();
   c26->Update();
-  c26->SaveAs("/eos/user/s/ssnehshu/plots/TTGamma/YPho.png");*/
+  c26->SaveAs("/eos/user/s/ssnehshu/plots/TTbar/Rapidity_mu.png");
 
   fl1->Close();
   file2->Close();
