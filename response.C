@@ -1,58 +1,79 @@
 #include "TROOT.h"
 #include "TH1.h"
 #include "TLorentzVector.h"
-#include <TMath.h>
-#include <TGraphErrors.h>
 #include "TFile.h"
-#include "TChain.h"
+#include "TTree.h"
 #include "TCanvas.h"
-#include <TH2.h>
+#include "TH2.h"
 
 void response()
 {
-    // Open the ROOT files containing the histograms
     TFile *file1 = new TFile("output_GenLevel.root", "READ");
     TFile *file2 = new TFile("output_TTGamma.root", "READ");
 
-    // Get the histograms from the files
-    TH1F *hist1 = (TH1F *)file1->Get("h7");
-    TH1F *hist2 = (TH1F *)file2->Get("h25");
+    TTree *tree_gen = (TTree *)file1->Get("tree_gen");
+    TTree *tree_reco = (TTree *)file2->Get("tree_reco");
 
-    TH1F *histgen = new TH1F("histgen", "Gen Level", 4, -3, 3);
-    TH1F *histreco = new TH1F("histreco", "Reco Level", 4, -3, 3);
-    TH2F *histresponse = new TH2F("histresponse", "histresponse", 4, -3, 3, 4, -3, 3);
+    Float_t rapidity_diff_reco, event_weight_reco;
+    Float_t rapidity_diff_gen, event_weight_gen;
 
-    // Fill histgen and histreco with the content of hist1 and hist2, respectively
-    histgen->Add(hist1);
-    histreco->Add(hist2);
+    tree_reco->SetBranchAddress("rapidity_diff_reco", &rapidity_diff_reco);
+    tree_reco->SetBranchAddress("event_weight_reco", &event_weight_reco);
+    tree_gen->SetBranchAddress("rapidity_diff_gen", &rapidity_diff_gen);
+    tree_gen->SetBranchAddress("event_weight_gen", &event_weight_gen);
 
-    Int_t nbins = 4;
-    // Loop over Gen level histogram
-    for (Int_t i = 1; i <= nbins; i++)
+    Int_t nbins = 20;
+    Double_t xmin = -3.0, xmax = 3.0;
+
+    TH2F *responseMatrix = new TH2F("responseMatrix", "Response Matrix", nbins, xmin, xmax, nbins, xmin, xmax);
+    TH1F *histReco = new TH1F("histReco", "Reco level", nbins, xmin, xmax);
+    TH1F *histGen = new TH1F("histGen", "Gen level", nbins, xmin, xmax);
+
+    histReco->SetOption("hist");
+    histGen->SetOption("hist");
+
+    Int_t nentriesReco = tree_reco->GetEntries();
+    for (Int_t i = 0; i < nentriesReco; i++)
     {
-        // Get the number of events in the Gen level bin and fill histgen
-        Float_t genLevelEvents = histgen->GetXaxis()->GetBinCenter(i);
-       
-
-        // Loop over Reco level histogram
-        for (Int_t j = 1; j <= nbins; j++)
-        {
-            // Get the number of events in the Reco level bin and fill histreco
-            Float_t recoLevelEvents = histreco->GetXaxis()->GetBinCenter(j);
-            
-
-            Float_t genContent = histgen->GetBinContent(i);
-            Float_t recoContent = histreco->GetBinContent(j);
-
-            // Calculate the response matrix element
-        
-            histresponse->SetBinContent(j, i, genContent / recoContent);
-        
-        }
+        tree_reco->GetEntry(i);
+        histReco->Fill(rapidity_diff_reco, event_weight_reco);
     }
 
-    // Save histresponse to a ROOT file
-    TFile *outputFile = new TFile("response.root", "RECREATE");
-    histresponse->Write();
+    Int_t nentriesGen = tree_gen->GetEntries();
+    for (Int_t i = 0; i < nentriesGen; i++)
+    {
+        tree_gen->GetEntry(i);
+        histGen->Fill(rapidity_diff_gen, event_weight_gen);
+        // responseMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+    }
+    for (Int_t i = 0; i < nentriesReco; i++)
+    {
+        tree_reco->GetEntry(i);
+        tree_gen->GetEntry(i);
+        responseMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+    }
+
+    TCanvas *canvas = new TCanvas("canvas", "Response Matrix Canvas", 800, 600);
+    responseMatrix->Draw("COLZTEXT");
+    responseMatrix->GetXaxis()->SetTitle("Gen Level");
+    responseMatrix->GetYaxis()->SetTitle("Reco Level");
+    responseMatrix->SetTitle("Response Matrix");
+
+    canvas->SaveAs("responseMatrix.png");
+
+    TFile *outputFile = new TFile("outputFile.root", "RECREATE");
+    responseMatrix->Write();
+    histReco->Write();
+    histGen->Write();
+    canvas->Write();
+    file1->Close();
+    file2->Close();
     outputFile->Close();
+    // delete file1;
+    // delete file2;
+    // delete outputFile;
+    // delete responseMatrix;
+    // delete histReco;
+    // delete histGen;
+    // delete canvas;
 }
