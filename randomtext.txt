@@ -1,0 +1,27 @@
+// Make sure this variable is accessible (declare it outside both if statements if needed)
+float rapidity_diff_gen = 0; // Initialize outside the if statement
+float event_weight_gen = 0; // Make sure this variable is also accessible outside the gen-level if
+
+// ... earlier code ...
+
+// Generated-level calculations (which you have done correctly)
+if (passPresel_Ele_gen && nGenJet >= 4 && totalbjet >= 1 && totalPhotons == 1) {
+    // ... calculations for generated level...
+    rapidity_diff_gen = YT_gen - Yt_gen; // You calculated this inside the gen-level if
+    event_weight_gen = weight_gen; // Also assign event_weight_gen here
+    // Don't fill correlMatrix here since you don't yet have reco-level data
+}
+
+// Reconstructed-level calculations
+if (passPresel_Ele && nJet >= 4 && nBJet >= 1 && nPho == 1) {
+    // ... calculations for reconstructed level ...
+    rapidity_diff_reco = YT_ele - Yt_ele; // This is calculated inside the reco-level if
+    event_weight_reco = weight; // Assign event_weight_reco here
+
+    // Only fill the correlMatrix if the gen-level data is available and valid for this event
+    correlMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen); // Fill with proper weights
+    // Note: The above line assumes you have a valid rapidity_diff_gen value from the gen-level calculation which should be executed prior to this block
+    correlMatrix_reco->Fill(rapidity_diff_reco, rapidity_diff_reco);
+
+    tree1->Fill(); // Finally, fill your TTree with all relevant data
+}
