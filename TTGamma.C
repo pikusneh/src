@@ -366,9 +366,9 @@ void TTGamma()
         event_weight_reco = weight;
         tree_reco->Fill();
 
-        h25->Fill(rapidity_diff_ele, weight);
+        h25->Fill(rapidity_diff_ele,event_weight_reco);
 
-        h25->Scale(1.0 / h25->Integral());
+        // h25->Scale(1.0 / h25->Integral());
 
         // h26->Fill(Yt_ele);
         //  Fill N+ and N- with weight for overall electron channel/////////////////

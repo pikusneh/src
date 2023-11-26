@@ -87,6 +87,8 @@
         "Correlation_Rapidity.C": "cpp",
         "idealcorrelation.C": "cpp",
         "gauss.C": "cpp",
-        "GenReco.C": "cpp"
+        "GenReco.C": "cpp",
+        "example.C": "cpp",
+        "testGenReco.C": "cpp"
     }
 }

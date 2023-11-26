@@ -1,3 +1,7 @@
+#if !(defined(__CINT__) || defined(__CLING__)) || defined(__ACLIC__)
+#include <iostream>
+using std::cout;
+using std::endl;
 #include "TROOT.h"
 #include "TH1.h"
 #include "TLorentzVector.h"
@@ -6,24 +10,31 @@
 #include "TFile.h"
 #include "TChain.h"
 #include "TCanvas.h"
+// #include "RooUnfoldResponse.h"
+// #include "RooUnfoldBayes.h"
+
+#endif
 
 void GenReco()
 {
 
     TH1F *Rapidity_diff_Gen = new TH1F("Rapidity_diff_Gen", "Rapidity_Diff_Gen", 20, -3, 3);
-    TH2F *responseMatrix = new TH2F("responseMatrix", "Response Matrix", 20, -3, 3, 20, -3, 3);
+    TH1F *Rapidity_diff_Reco = new TH1F("Rapidity_diff_Reco", "Rapidity_Diff_Reco", 20, -3, 3);
+    TH2F *correlMatrix = new TH2F("correlMatrix", "correl Matrix", 30, -3, 3, 30, -3, 3);
+    TH2F *correlMatrix_reco = new TH2F("correlMatrix_reco", "correl Matrix_reco", 20, -3, 3, 20, -3, 3);
 
     Rapidity_diff_Gen->SetOption("hist");
+    Rapidity_diff_Reco->SetOption("hist");
+    TTree *tree1 = new TTree("tree1", "tree1");
 
     TFile *fl = new TFile("GenLevel.root", "RECREATE");
     TChain *tr = new TChain("AnalysisTree");
 
-    TFile *file1 = new TFile("output_GenReco.root", "RECREATE");
-    TTree *tree1 = new TTree("tree1", "tree1");
-
     tr->Add("/eos/user/s/ssnehshu/topquarksample/2016/TTGamma_SingleLept_2016_AnalysisNtuple.root");
     tr->Add("/eos/user/s/ssnehshu/topquarksample/2016/TTGamma_Hadronic_2016_AnalysisNtuple.root");
     tr->Add("/eos/user/s/ssnehshu/topquarksample/2016/TTGamma_Dilepton_2016_AnalysisNtuple.root");
+
+    // RooUnfoldResponse response(20, -3, 3, 20, -3, 3);
 
     //  Define the variables
     std::vector<Float_t> *elePt = 0;
@@ -36,6 +47,7 @@ void GenReco()
     int numevents = tr->GetEntries();
 
     int nGenPart;
+
     std::vector<int> *genPDGID = 0;
     std::vector<int> *genMomIdx = 0;
     std::vector<Float_t> *genMass = 0;
@@ -45,6 +57,7 @@ void GenReco()
     float evtWeight = 0;
     int nEle = 0;
     int nMu = 0;
+    Int_t nGenJet = 0;
     Int_t nJet = 0;
     Int_t nBJet = 0;
     Int_t nPho = 0;
@@ -83,7 +96,7 @@ void GenReco()
     tr->SetBranchStatus("phoPhi", 1);
     tr->SetBranchStatus("nEle", 1);
     tr->SetBranchStatus("nMu", 1);
-
+    tr->SetBranchStatus("nGenJet", 1);
     tr->SetBranchStatus("nGenPart", 1);
     tr->SetBranchStatus("genPDGID", 1);
     tr->SetBranchStatus("genMomIdx", 1);
@@ -114,6 +127,7 @@ void GenReco()
     tr->SetBranchStatus("eleEffWeight", 1);
     tr->SetBranchStatus("PUweight", 1);
     cout << "numevents" << numevents << std::endl;
+    cout << "nGenPart" << nGenPart << std::endl;
 
     /////////////////////////////////////////////////////////////Set Branch Address/////////////////////////////////////////////////////////////////
     tr->SetBranchAddress("elePt", &elePt);
@@ -124,6 +138,7 @@ void GenReco()
     tr->SetBranchAddress("phoPhi", &phoPhi);
     tr->SetBranchAddress("nEle", &nEle);
     tr->SetBranchAddress("nMu", &nMu);
+    tr->SetBranchAddress("nGenJet", &nGenJet);
     tr->SetBranchAddress("nGenPart", &nGenPart);
     tr->SetBranchAddress("genPDGID", &genPDGID);
     tr->SetBranchAddress("genMomIdx", &genMomIdx);
@@ -157,62 +172,104 @@ void GenReco()
     double weight = 0;
     double weight_gen = 0;
     float rapidity_diff_gen = 0;
-    float event_weight_gen;
+    float event_weight_gen = 0;
     float rapidity_diff_reco = 0;
-    float event_weight_reco;
-    tree1->Branch("rapidity_diff_gen", &rapidity_diff_gen, "Rapidity_diff_gen/F");
-    tree1->Branch("event_weight_gen", &event_weight_gen, "event_weight_gen/F");
-    tree1->Branch("rapidity_diff_reco", &rapidity_diff_reco, "Rapidity_diff_reco/F");
-    tree1->Branch("event_weight_reco", &event_weight_reco, "event_weight_reco/F");
+    float event_weight_reco = 0;
+    tree1->Branch("rapidity_diff_gen", &rapidity_diff_gen);
+    tree1->Branch("rapidity_diff_reco", &rapidity_diff_reco);
+    tree1->Branch("event_weight_gen", &event_weight_gen);
+    tree1->Branch("event_weight_reco", &event_weight_reco);
 
-    // T is for top
-    // t is for anti top
+    // numevents = 10000;
 
     float Rapidity_T_gen, Rapidity_t_gen;
 
     for (int j = 0; j < numevents; j++)
     {
-
-        int topindex;
-        int antitopindex;
         tr->GetEntry(j);
+        int topindex = -1;
+        int antitopindex = -1;
+        int photonindex = -1;
+        int electronindex = -1;
+        bool passPresel_Ele_gen = false;
+
         weight_gen = evtWeight;
         weight = evtWeight * PUweight * muEffWeight * eleEffWeight * btagWeight_1a * prefireSF;
         TLorentzVector Top_gen;
         TLorentzVector Anti_Top_gen;
         TLorentzVector Top;
         TLorentzVector AntiTop;
-        if (passPresel_Ele && nJet >= 4 && nBJet >= 1 && nPho == 1)
+        TLorentzVector Photon_gen;
+        TLorentzVector Ele_gen;
+        int totalPhotons = 0;
+        int totalbjet = 0;
+
+        for (int i = 0; i < nGenPart; i++)
         {
-            for (int i = 0; i < nGenPart; i++)
+            if (genPDGID->at(i) == 6)
             {
-                if (genPDGID->at(i) == 6)
-                {
-                    topindex = i;
-                }
-                if (genPDGID->at(i) == -6)
-                {
-                    antitopindex = i;
-                }
+                topindex = i;
+            }
+            if (genPDGID->at(i) == -6)
+            {
+                antitopindex = i;
+            }
+            if (genPDGID->at(i) == 11)
+            {
+                electronindex = i;
+            }
+            Ele_gen.SetPtEtaPhiM((*genPt)[electronindex], (*genEta)[electronindex], (*genPhi)[electronindex], (*genMass)[electronindex]);
+            float EleRapidity_gen = Ele_gen.Rapidity();
+            float YEle_gen = TMath::Abs(EleRapidity_gen);
+            float Ele_Pt = Ele_gen.Pt();
+
+            if (Ele_Pt >= 35.0 && YEle_gen <= 2.4)
+            {
+                passPresel_Ele_gen = true;
             }
 
-            Top_gen.SetPtEtaPhiM((*genPt)[topindex], (*genEta)[topindex], (*genPhi)[topindex], (*genMass)[topindex]);
-            Anti_Top_gen.SetPtEtaPhiM((*genPt)[antitopindex], (*genEta)[antitopindex], (*genPhi)[antitopindex], (*genMass)[antitopindex]);
-            TLorentzVector TopAntiTop_gen = Top_gen + Anti_Top_gen;
+            if (genPDGID->at(i) == 22)
+            {
+                photonindex = i;
+                totalPhotons++;
+                // std::cout << "photons" << totalPhotons << std::endl;
+            }
 
-            ///////////////////////////////rapidity calculation/////////////////////////////////////////////////////////////
-            Rapidity_T_gen = Top_gen.Rapidity();
-            Rapidity_t_gen = Anti_Top_gen.Rapidity();
-            float YT_gen = TMath::Abs(Rapidity_T_gen); // top rapidity
-            float Yt_gen = TMath::Abs(Rapidity_t_gen); // antitop rapidity
-            float rapidity_diff_gen = YT_gen - Yt_gen;
-            event_weight_gen = weight_gen;
-            Rapidity_diff_Gen->Fill(rapidity_diff_gen, weight);
+            if ((genPDGID->at(i) == 5 || genPDGID->at(i) == -5) && genPt->at(i) >= 30.0 && fabs(genEta->at(i)) <= 2.4)
+            {
+                totalbjet++;
+            }
+        }
 
-            // Rapidity_diff_Gen->Scale(1.0 / Rapidity_diff_Gen->Integral());
+        // correlMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+        // }
 
-            ////////////////////////////////////////////////////////////////////////////////reco level/////////////////////////////////////////////////////////////
-            //////////////Tlorentz for photon///////////////////////
+        if (passPresel_Ele_gen == true && nGenJet >= 4 && totalbjet >= 1 && totalPhotons == 1)
+        {
+            Photon_gen.SetPtEtaPhiM((*genPt)[photonindex], (*genEta)[photonindex], (*genPhi)[photonindex], (*genMass)[photonindex]);
+            float PhoRapidity_gen = Photon_gen.Rapidity();
+            float YPho_gen = TMath::Abs(PhoRapidity_gen);
+            float Pho_Pt = Photon_gen.Pt();
+            if (YPho_gen >= 1)
+            {
+                Top_gen.SetPtEtaPhiM((*genPt)[topindex], (*genEta)[topindex], (*genPhi)[topindex], (*genMass)[topindex]);
+                Anti_Top_gen.SetPtEtaPhiM((*genPt)[antitopindex], (*genEta)[antitopindex], (*genPhi)[antitopindex], (*genMass)[antitopindex]);
+                TLorentzVector TopAntiTop_gen = Top_gen + Anti_Top_gen;
+
+                ///////////////////////////////rapidity calculation/////////////////////////////////////////////////////////////
+                Rapidity_T_gen = Top_gen.Rapidity();
+                Rapidity_t_gen = Anti_Top_gen.Rapidity();
+                float YT_gen = TMath::Abs(Rapidity_T_gen); // top rapidity
+                float Yt_gen = TMath::Abs(Rapidity_t_gen); // antitop rapidity
+                rapidity_diff_gen = YT_gen - Yt_gen;
+                event_weight_gen = weight_gen;
+                Rapidity_diff_Gen->Fill(rapidity_diff_gen, event_weight_gen);
+                Rapidity_diff_Gen->Scale(1.0 / Rapidity_diff_Gen->Integral());
+                // std::cout << "Gen Level Rapidity Difference: " << rapidity_diff_gen << std::endl;
+            }
+        }
+        if (passPresel_Ele && nJet >= 4 && nBJet >= 1 && nPho == 1)
+        {
             TLorentzVector Photon;
             Photon.SetPtEtaPhiM(phoEt->at(0), phoEta->at(0), phoPhi->at(0), 0.0);
             PhoRapidity = Photon.Rapidity();
@@ -238,31 +295,80 @@ void GenReco()
                 float YT_ele = TMath::Abs(Rapidity_T_ele); // top
                 float Yt_ele = TMath::Abs(Rapidity_t_ele); // antitop
                 float rapidity_diff_ele = YT_ele - Yt_ele; // difference of rapidity; delta y
-
-                rapidity_diff_reco = rapidity_diff_ele;
                 event_weight_reco = weight;
-                responseMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+                rapidity_diff_reco = rapidity_diff_ele;
+                Rapidity_diff_Reco->Fill(rapidity_diff_ele, event_weight_reco);
+                Rapidity_diff_Reco->Scale(1.0 / Rapidity_diff_Reco->Integral());
+                correlMatrix_reco->Fill(rapidity_diff_reco, rapidity_diff_reco);
+                if (passPresel_Ele_gen && nGenJet >= 4 && totalbjet >= 1 && totalPhotons == 1)
+                {
+                    // response.Fill(rapidity_diff_reco, rapidity_diff_gen, event_weight_reco);
+                    correlMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+                }
+                // std::cout << " Reco Level Rapidity Difference: " << rapidity_diff_reco << std::endl;
+                // correlMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+                // response.Fill(rapidity_diff_reco, rapidity_diff_gen, event_weight_reco);
+
                 tree1->Fill();
             }
         }
-    }
-    TCanvas *c7 = new TCanvas();
 
+        // correlMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+        // }
+
+        //     correlMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+        // }
+        // correlMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+        // correlMatrix->Scale(1.0 / correlMatrix->Integral());
+
+        // std::cout << " Reco Level Rapidity Difference2: " << rapidity_diff_reco << std::endl;
+        // std::cout << "Gen Level Rapidity Difference2: " << rapidity_diff_gen << std::endl;
+    }
+
+    fl->Close();
+
+    TFile *file1 = new TFile("output_GenReco.root", "RECREATE");
+
+    TCanvas *c7 = new TCanvas();
     c7->cd();
     Rapidity_diff_Gen->Draw();
     c7->Update();
     c7->SaveAs("/eos/user/s/ssnehshu/GenLevel/Rapidity_Gen.png");
     Rapidity_diff_Gen->Write();
 
-    TCanvas *canvas = new TCanvas("canvas", "Response Matrix Canvas", 800, 600);
-    responseMatrix->Draw("COLZTEXT");
-    responseMatrix->GetXaxis()->SetTitle("Gen Level");
-    responseMatrix->GetYaxis()->SetTitle("Reco Level");
-    responseMatrix->SetTitle("Response Matrix");
-    canvas->Update();
-    canvas->SaveAs("responseMatrix.png");
-    responseMatrix->Write();
+    TCanvas *canvas2 = new TCanvas();
+    canvas2->cd();
+    Rapidity_diff_Reco->Draw();
+    canvas2->Update();
+    canvas2->SaveAs("/eos/user/s/ssnehshu/GenLevel/Rapidity_Reco.png");
+    Rapidity_diff_Reco->Write();
+
+    TCanvas *canvas = new TCanvas("canvas", "correl Matrix Canvas", 800, 600);
+    correlMatrix->GetXaxis()->SetTitle("Gen Level");
+    correlMatrix->GetYaxis()->SetTitle("Reco Level");
+    correlMatrix->SetTitle("correl Matrix");
+    correlMatrix->Draw("COLZ TEXT");
+    canvas->Write();
+
+    TCanvas *canvas3 = new TCanvas("canvas3", "correl Matrix Canvas", 800, 600);
+
+    correlMatrix_reco->GetXaxis()->SetTitle("Reco Level");
+    correlMatrix_reco->GetYaxis()->SetTitle("Reco Level");
+    correlMatrix_reco->SetTitle("correl Matrix_reco");
+    correlMatrix_reco->Draw("COLZTEXT");
+    canvas3->SaveAs("correlMatrix_reco.png");
+    canvas3->Write();
+
+    // response.Write();
+
     tree1->Write();
-    fl->Close();
+
     file1->Close();
 }
+#ifndef __CINT__
+int main()
+{
+    GenReco();
+    return 0;
+}
+#endif

@@ -32,6 +32,7 @@ void response()
     histReco->SetOption("hist");
     histGen->SetOption("hist");
 
+
     Int_t nentriesReco = tree_reco->GetEntries();
     for (Int_t i = 0; i < nentriesReco; i++)
     {
@@ -46,13 +47,12 @@ void response()
         histGen->Fill(rapidity_diff_gen, event_weight_gen);
         // responseMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
     }
-    for (Int_t i = 0; i < nentriesReco; i++)
-    {
-        tree_reco->GetEntry(i);
-        tree_gen->GetEntry(i);
-        responseMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
-    }
-
+    for (Int_t i = 0; i < nentriesReco; i++) {
+    tree_reco->GetEntry(i);
+    tree_gen->GetEntry(i);
+    responseMatrix->Fill(rapidity_diff_gen, rapidity_diff_reco, event_weight_reco * event_weight_gen);
+}
+    
     TCanvas *canvas = new TCanvas("canvas", "Response Matrix Canvas", 800, 600);
     responseMatrix->Draw("COLZTEXT");
     responseMatrix->GetXaxis()->SetTitle("Gen Level");
@@ -61,7 +61,7 @@ void response()
 
     canvas->SaveAs("responseMatrix.png");
 
-    TFile *outputFile = new TFile("outputFile.root", "RECREATE");
+    TFile *outputFile = new TFile("output_response.root", "RECREATE");
     responseMatrix->Write();
     histReco->Write();
     histGen->Write();
@@ -69,11 +69,5 @@ void response()
     file1->Close();
     file2->Close();
     outputFile->Close();
-    // delete file1;
-    // delete file2;
-    // delete outputFile;
-    // delete responseMatrix;
-    // delete histReco;
-    // delete histGen;
-    // delete canvas;
+   
 }
