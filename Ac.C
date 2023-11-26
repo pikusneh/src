@@ -13,7 +13,7 @@ void Ac()
     TH1F *hist11 = (TH1F *)fl1->Get("h22");
     TTree *tree1 = (TTree *)fl1->Get("tree1"); // tree1 is for TTGamma sample
 
-    TFile *fl2 = new TFile("output_TTbar.root", "read");
+    TFile *fl2 = new TFile("output_TTbar.root", "read") ;
     TH1F *hist2 = (TH1F *)fl2->Get("h14");
     TH1F *hist4 = (TH1F *)fl2->Get("h17");
     TH1F *hist6 = (TH1F *)fl2->Get("h18");
