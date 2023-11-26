@@ -8,40 +8,42 @@
 #include <TPad.h>
 
 void Correlation_Rapidity()
-{
-    TFile *fl1 = new TFile("output_TTGamma.root", "read");
-    TH1F *hist1 = (TH1F *)fl1->Get("h25");
+ {
+    TFile *fl1 = new TFile("gaussian_histogram.root", "read");
+    TH1F *hist1 = (TH1F *)fl1->Get("gaussian_hist");
 
-    TFile *fl2 = new TFile("output_GenLevel.root", "read");
-    TH1F *hist2 = (TH1F *)fl2->Get("Rapidity_diff_Gen");
 
-    TH2F *histresponse = new TH2F("histresponse", "histresponse", 20, -3, 3, 20, -3, 3);
-    // Create a new histogram to store the bin-by-bin difference
+    TFile *fl2 = new TFile("gaussian_histogram.root", "read");
+    TH1F *hist2 = (TH1F *)fl2->Get("gaussian_hist");
+
+    TH2F *histresponse = new TH2F("histresponse", "histresponse", 100, -5, 5, 100, -5, 5);
+    // Creating a new histogram to store the bin-by-bin difference
     TH1F *histDiff = new TH1F("histDiff", "Bin-by-Bin Difference", hist1->GetNbinsX(), hist1->GetXaxis()->GetXmin(), hist1->GetXaxis()->GetXmax());
 
-    // Calculate the bin-by-bin difference
-    for (int iBin = 1; iBin <= hist2->GetNbinsX(); ++iBin)
-    {
-        double diff = hist2->GetBinContent(iBin) - hist1->GetBinContent(iBin);
-        histDiff->SetBinContent(iBin, diff);
-    }
+    // // Calculating the bin-by-bin difference
+    // for (int iBin = 1; iBin <= hist2->GetNbinsX(); ++iBin)
+    // {
+    //     double diff = hist2->GetBinContent(iBin) - hist1->GetBinContent(iBin);
+    //     histDiff->SetBinContent(iBin, diff);
+    // }
 
-    // Make 2D histogram
-    Int_t nbins = 20;
-    // Loop over Gen level histogram
+    // 2D histogram
+    Int_t nbins = 100;
+    // Looping over Gen level histogram
     for (Int_t k = 1; k <= nbins; k++)
     {
         // Get the number of events in the Gen level bin and fill histgen
         // Float_t genLevelEvents = hist2->GetXaxis()->GetBinCenter(k);
 
-        // Loop over Reco level histogram
-        for (Int_t j = 1; j <= nbins; j++)
+        // Looping over Reco level histogram
+        //for (Int_t j = 1; j <= nbins; j++)
         {
             // Get the number of events in the Reco level bin and fill histreco
             // Float_t recoLevelEvents = hist1->GetXaxis()->GetBinCenter(j);
             Float_t genContent = hist2->GetBinContent(k);
-            Float_t recoContent = hist1->GetBinContent(j);
-            histresponse->SetBinContent(k, j, genContent * recoContent);
+            Float_t recoContent = hist1->GetBinContent(k);
+            
+            histresponse->SetBinContent(k, k, genContent * recoContent);
         }
     }
 
@@ -102,10 +104,10 @@ void Correlation_Rapidity()
     histresponse->GetXaxis()->SetTitle("Gen Level");
 
     histresponse->Write();
-    TFile *outputFile = new TFile("output_correlation_raid_diff_gen_reco_ele_20bins.root", "RECREATE");
+    TFile *outputFile = new TFile("gauss.root", "RECREATE");
     c2->Write();
     c2->Update();
-    c2->SaveAs("/eos/user/s/ssnehshu/correlation_reco_gen_rapidity_diff_20bins.png");
+    c2->SaveAs("/eos/user/s/ssnehshu/gauss.png");
 
     // Clean up by closing the input files (optional)
     fl1->Close();

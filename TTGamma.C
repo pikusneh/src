@@ -14,7 +14,7 @@ void TTGamma()
   TH1F *h1 = new TH1F("h1", "elept", 100, 0, 400);
   TH1F *h2 = new TH1F("h2", "muonpt", 100, 0, 400);
   TH1F *h3 = new TH1F("h3", "jetspt", 100, 0, 500);
-  TH1F *htopantitop_pt = new TH1F("htopantitop_pt", "topantitop_pt", 100, 0, 800);
+  TH1F *htopantitop_pt = new TH1F("htopantitop_pt", "topantitop_pt_reco_ele", 100, 0, 450);
   // TH1F *h5 = new TH1F("h5","topleppt",100,-11000,2000);
   TH1F *h6 = new TH1F("h6", "tophadeta", 100, -11000, 2000);
   TH1F *h7 = new TH1F("h7", "toplepeta", 100, -11000, 2000);
@@ -64,6 +64,7 @@ void TTGamma()
   h16->SetOption("hist");
   h25->SetOption("hist");
   h26->SetOption("hist");
+  htopantitop_pt->SetOption("hist");
   // Set line color
   h9ele->SetLineColor(kBlack);
   h9mu->SetLineColor(kBlack);
@@ -81,8 +82,8 @@ void TTGamma()
   TFile *fl = new TFile("TTGamma.root", "RECREATE");
   TChain *tr = new TChain("AnalysisTree");
   // saving N+ and N- value in root
-  TFile *file1 = new TFile("output_TTGamma.root", "RECREATE");
-  TTree *tree1 = new TTree("tree1", "tree1");
+  TFile *file1 = new TFile("output_TTGamma1.root", "RECREATE");
+  TTree *tree_reco = new TTree("tree_reco", "tree_reco");
 
   tr->Add("/eos/user/s/ssnehshu/topquarksample/2016/TTGamma_SingleLept_2016_AnalysisNtuple.root");
   tr->Add("/eos/user/s/ssnehshu/topquarksample/2016/TTGamma_Hadronic_2016_AnalysisNtuple.root");
@@ -279,10 +280,10 @@ void TTGamma()
   float N_minus_mu3phopt = 0;
   float N_minus_mu4phopt = 0;
 
-  tree1->Branch("N_plus1", &N_plus1, "N_plus1/F");
-  tree1->Branch("N_minus1", &N_minus1, "N_minus1/F");
-  tree1->Branch("N_plus2", &N_plus2, "N_plus2/F");
-  tree1->Branch("N_minus2", &N_minus2, "N_minus2/F");
+  tree_reco->Branch("N_plus1", &N_plus1, "N_plus1/F");
+  tree_reco->Branch("N_minus1", &N_minus1, "N_minus1/F");
+  tree_reco->Branch("N_plus2", &N_plus2, "N_plus2/F");
+  tree_reco->Branch("N_minus2", &N_minus2, "N_minus2/F");
 
   TLorentzVector TopLep;
   TLorentzVector TopHad;
@@ -295,6 +296,11 @@ void TTGamma()
   Float_t YT_ele;
   Float_t Yt_ele;
   Float_t rapidity_diff_ele;
+  float rapidity_diff_reco = 0.0;
+  float event_weight_reco = 1.0;
+  tree_reco->Branch("rapidity_diff_reco", &rapidity_diff_reco, "Rapidity_diff_reco/F");
+  tree_reco->Branch("event_weight_reco", &event_weight_reco, "event_weight_reco/F");
+
   Float_t YT_mu;
   Float_t Yt_mu;
   Float_t rapidity_diff_mu;
@@ -324,6 +330,7 @@ void TTGamma()
     if (passPresel_Ele && nJet >= 4 && nBJet >= 1 && nPho == 1) //////////////////////////selection for electron channel//////////////////////////////////////
 
     {
+      
       //////////////Tlorentz for photon///////////////////////
       TLorentzVector Photon;
       Photon.SetPtEtaPhiM(phoEt->at(0), phoEta->at(0), phoPhi->at(0), 0.0);
@@ -354,6 +361,11 @@ void TTGamma()
         Yt_ele = TMath::Abs(Rapidity_t_ele); // antitop
         rapidity_diff_ele = YT_ele - Yt_ele; // difference of rapidity; delta y
         // std::cout << "Rapidity = " << rapidity_diff_ele << std::endl;
+        ///////////////////////////////////
+        rapidity_diff_reco = rapidity_diff_ele;
+        event_weight_reco = weight;
+        tree_reco->Fill();
+
         h25->Fill(rapidity_diff_ele, weight);
 
         h25->Scale(1.0 / h25->Integral());
@@ -481,7 +493,6 @@ void TTGamma()
             N_minus_ele1pt = N_minus_ele1pt + weight;
           }
           Pt_ele1 = Pt_ele;
-          
         }
 
         else if (Pt_ele >= 0 && Pt_ele < 200)
@@ -496,7 +507,6 @@ void TTGamma()
             N_minus_ele2pt = N_minus_ele2pt + weight;
           }
           Pt_ele2 = Pt_ele;
-          
         }
 
         else if (Pt_ele >= 200 && Pt_ele < 400)
@@ -511,7 +521,6 @@ void TTGamma()
             N_minus_ele3pt = N_minus_ele3pt + weight;
           }
           Pt_ele3 = Pt_ele;
-          
         }
 
         else if (Pt_ele >= 400 && Pt_ele < 1000)
@@ -526,9 +535,10 @@ void TTGamma()
             N_minus_ele4pt = N_minus_ele4pt + weight;
           }
           Pt_ele4 = Pt_ele;
-          
         }
         htopantitop_pt->Fill(Pt_ele, weight);
+        htopantitop_pt->Scale(1.0 / htopantitop_pt->Integral());
+
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /////////////////////////////////////////////////////fill N+ and N- value in different range of PhoPt for electron channel///////////////////////////////////
@@ -890,7 +900,7 @@ void TTGamma()
         N_minus1 = N_minus1 + weight; // single one value of N- including both channel
       }
 
-      tree1->Fill();
+      // tree_reco->Fill();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -939,7 +949,7 @@ void TTGamma()
         }
         //  cout<<"testing 3"<<endl;
         // h23->Fill(YPho);
-        tree1->Fill();
+        // tree_reco->Fill();
       }
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -966,7 +976,7 @@ void TTGamma()
     //   h7->Fill(TopLep_eta);
     h8->Fill(TopLep_charge, weight);
   }
-  tree1->Fill();
+  
   std::cout << "Rapidity = " << rapidity_diff_ele << std::endl;
   std::cout << "N_ele+ = " << N_plus_ele << std::endl;
   std::cout << "N_ele- = " << N_minus_ele << std::endl;
@@ -1782,7 +1792,8 @@ void TTGamma()
   h22->Write();
   h25->Write();
   h26->Write();
-  tree1->Write();
+  htopantitop_pt->Write();
+  tree_reco->Write();
 
   TCanvas *c1 = new TCanvas();
   c1->cd();
