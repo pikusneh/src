@@ -196,7 +196,7 @@ void DataMuon()
   for (Int_t i = 0; i < numevents; i++)
   {
     tr->GetEntry(i);
-    weight = evtWeight * PUweight * muEffWeight * eleEffWeight * btagWeight_1a * prefireSF;
+    //weight = evtWeight * PUweight * muEffWeight * eleEffWeight * btagWeight_1a * prefireSF;
 
     /////////////////////////////////Electron channel////////////////////////////////////////
     if (passPresel_Ele && nJet >= 4 && nBJet >= 1 && nPho == 1)
@@ -207,8 +207,7 @@ void DataMuon()
         Top.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
       }
-      else
-        (TopLep_charge < 0);
+      else if (TopLep_charge < 0)
       {
         AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
@@ -226,16 +225,16 @@ void DataMuon()
       sub_ele = YT_ele - Yt_ele;
       if (sub_ele > 0)
       {
-        N_plus_ele = N_plus_ele + weight;
+        N_plus_ele++;
       }
       if (sub_ele < 0)
       {
-        N_minus_ele = N_minus_ele + weight;
+        N_minus_ele++;
       }
 
-      h1->Fill(elePt->at(0), weight);
-      h9ele->Fill(TopLep_eta, weight);  // top quark
-      h10ele->Fill(TopHad_eta, weight); // anti top quark
+      h1->Fill(elePt->at(0));
+      h9ele->Fill(TopLep_eta);  // top quark
+      h10ele->Fill(TopHad_eta); // anti top quark
     }
     //////////////////////////////////////Muon Channel////////////////////////////////////////
 
@@ -248,8 +247,7 @@ void DataMuon()
         AntiTop.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
       }
 
-      else
-        (TopLep_charge < 0);
+      else if(TopLep_charge < 0)
       {
         AntiTop.SetPtEtaPhiM(TopLep_pt, TopLep_eta, TopLep_phi, Mt_blgammaMET);
         Top.SetPtEtaPhiM(TopHad_pt, TopHad_eta, TopHad_phi, M_bjj);
@@ -264,39 +262,39 @@ void DataMuon()
       sub_mu = YT_mu - Yt_mu;
       if (sub_mu > 0)
       {
-        N_plus_mu = N_plus_mu + weight;
+        N_plus_mu++;
       }
       if (sub_mu < 0)
       {
-        N_minus_mu = N_minus_mu + weight;
+        N_minus_mu++;
       }
 
-      h2->Fill(muPt->at(0), weight);
-      h9mu->Fill(TopHad_eta, weight);  // top quark
-      h10mu->Fill(TopLep_eta, weight); // anti top quark
+      h2->Fill(muPt->at(0));
+      h9mu->Fill(TopHad_eta);  // top quark
+      h10mu->Fill(TopLep_eta); // anti top quark
     }
     if (nJet > 0)
     {
-      h3->Fill(jetPt->at(0), weight);
+      h3->Fill(jetPt->at(0));
     }
 
     if (TopLep_charge > 0)
     {
-      h9->Fill(TopLep_eta, weight);  // top quark
-      h10->Fill(TopHad_eta, weight); // anti top quark
+      h9->Fill(TopLep_eta);  // top quark
+      h10->Fill(TopHad_eta); // anti top quark
     }
 
     if (TopLep_charge < 0)
     {
-      h9->Fill(TopHad_eta, weight);  // top quark
-      h10->Fill(TopLep_eta, weight); // antitop quark
+      h9->Fill(TopHad_eta);  // top quark
+      h10->Fill(TopLep_eta); // antitop quark
     }
 
     //   h4->Fill(TopHad_pt);
     //  h5->Fill(TopLep_pt);
     //   h6->Fill(TopHad_eta);
     //   h7->Fill(TopLep_eta);
-    h8->Fill(TopLep_charge, weight);
+    h8->Fill(TopLep_charge);
   }
   ////////////////////////Calculate charge asymmetry/////////////////////////////
   ///////////////////////////////////Electron Channel///////////////////////////////

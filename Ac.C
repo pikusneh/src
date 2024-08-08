@@ -13,7 +13,7 @@ void Ac()
     TH1F *hist11 = (TH1F *)fl1->Get("h22");
     TTree *tree1 = (TTree *)fl1->Get("tree1"); // tree1 is for TTGamma sample
 
-    TFile *fl2 = new TFile("output_TTbar.root", "read");
+    TFile *fl2 = new TFile("output_TTbar.root", "read") ;
     TH1F *hist2 = (TH1F *)fl2->Get("h14");
     TH1F *hist4 = (TH1F *)fl2->Get("h17");
     TH1F *hist6 = (TH1F *)fl2->Get("h18");
@@ -23,24 +23,41 @@ void Ac()
     TTree *tree2 = (TTree *)fl2->Get("tree2"); // tree2 is for TTbar sample
 
     hist1->SetLineColor(kRed);
+    hist1->SetFillColor(kRed);
+    hist1->SetFillStyle(3609);
+    // hist2->SetLineWidth(2);
     hist2->SetLineColor(kBlue);
-    hist1->SetFillColor(38);
-    hist1->SetFillStyle(3144);
+    hist2->SetLineWidth(1);
 
     hist3->SetLineColor(kRed);
+    hist3->SetFillColor(kRed);
+    hist3->SetFillStyle(3609);
     hist4->SetLineColor(kBlue);
+    hist4->SetLineWidth(1);
 
     hist5->SetLineColor(kRed);
+    hist5->SetFillColor(kRed);
+    hist5->SetFillStyle(3609);
     hist6->SetLineColor(kBlue);
+    hist6->SetLineWidth(1);
 
     hist7->SetLineColor(kRed);
+    hist7->SetFillColor(kRed);
+    hist7->SetFillStyle(3609);
     hist8->SetLineColor(kBlue);
+    hist8->SetLineWidth(1);
 
     hist9->SetLineColor(kRed);
+    hist9->SetFillColor(kRed);
+    hist9->SetFillStyle(3609);
     hist10->SetLineColor(kBlue);
+    hist10->SetLineWidth(1);
 
     hist11->SetLineColor(kRed);
+    hist11->SetFillColor(kRed);
+    hist11->SetFillStyle(3609);
     hist12->SetLineColor(kBlue);
+    hist12->SetLineWidth(1);
 
     float N_plus1, N_minus1, N_plus2, N_minus2;
     float N_plus3, N_minus3, N_plus4, N_minus4;
@@ -165,9 +182,8 @@ void Ac()
      std::cout << "N_plus4 for event " << N_plus4 << std::endl;
      std::cout << "N_minus4 for event " << N_minus4 << std::endl;*/
 
-    TCanvas *c1 = new TCanvas("c1", "Charge Asymmetry vs TTbarmass Electron Channel");
-    hist1->Draw();
-
+    TCanvas *c1 = new TCanvas("c1", "Charge Asymmetry vs t#bar{t}_{mass} Electron Channel");
+    hist1->Draw(" HIST E2");
     hist2->Draw(" SAME");
     hist1->SetStats(kFALSE);
     hist2->SetStats(kFALSE);
@@ -175,72 +191,72 @@ void Ac()
     hist1->GetYaxis()->SetTitleOffset(1.1);
     hist1->GetYaxis()->SetLabelSize(0.03);
     hist1->GetYaxis()->SetTitleSize(0.04);
-    hist1->GetXaxis()->SetTitle("t#bar{t}_{mass} (GeV)");
+    hist1->GetXaxis()->SetTitle("M_{t#bar{t}} (GeV)");
     hist1->GetYaxis()->SetTitle("A_{c_{ele}}");
-    TLegend *legend1 = new TLegend(0.7, 0.7, 0.9, 0.9);
-    legend1->AddEntry(hist1, "TTGamma", "E1P");
-    legend1->AddEntry(hist2, "TTbar", "E1P");
-    legend1->Draw("same");
+    TLegend *legend1 = new TLegend(0.1, 0.15, 0.3, 0.25);
+    legend1->AddEntry(hist1, "t#bar{t} + #gamma", "5pf");
+    legend1->AddEntry(hist2, "t#bar{t}", "E1P");
+    legend1->Draw("E4");
     c1->Update();
     c1->SaveAs("/eos/user/s/ssnehshu/temp/Ac_vs_ttbarmass_compare_Electron_Channel.png");
 
-    TCanvas *c2 = new TCanvas("c2", "Charge Asymmetry vs TTbarmass Muon Channel");
-    hist3->Draw();
-    hist4->Draw("same");
+    TCanvas *c2 = new TCanvas("c2", "Charge Asymmetry vs t#bar{t}_{mass} Muon Channel");
+    hist3->Draw(" HIST E2");
+    hist4->Draw(" SAME");
     hist3->SetStats(kFALSE);
     hist4->SetStats(kFALSE);
     hist3->GetXaxis()->SetTitleSize(0.04);
     hist3->GetYaxis()->SetTitleOffset(1.1);
     hist3->GetYaxis()->SetLabelSize(0.03);
     hist3->GetYaxis()->SetTitleSize(0.04);
-    hist3->GetXaxis()->SetTitle("t#bar{t}_{mass} (GeV)");
+    hist3->GetXaxis()->SetTitle("M_{t#bar{t}} (GeV)");
     hist3->GetYaxis()->SetTitle("A_{c_{mu}}");
-    TLegend *legend2 = new TLegend(0.7, 0.7, 0.9, 0.9);
-    legend2->AddEntry(hist3, "TTGamma", "E1P");
-    legend2->AddEntry(hist4, "TTbar", "E1P");
-    legend2->Draw("same");
+    TLegend *legend2 = new TLegend(0.1, 0.15, 0.3, 0.25);
+    legend2->AddEntry(hist3, "t#bar{t} + #gamma", "5pf");
+    legend2->AddEntry(hist4, "t#bar{t}", "E1P");
+    legend2->Draw("E4");
     c2->Update();
     c2->SaveAs("/eos/user/s/ssnehshu/temp/Ac_vs_ttbarmass_compare_Muon_Channel.png");
 
     TCanvas *c3 = new TCanvas("c3", "Charge Asymmetry vs TTbar Transverse Momentum Electron Channel");
-    hist5->Draw();
-    hist6->Draw("same");
+    hist5->Draw("HIST E2");
+    hist6->Draw("SAME");
     hist5->SetStats(kFALSE);
     hist6->SetStats(kFALSE);
     hist5->GetXaxis()->SetTitleSize(0.04);
     hist5->GetYaxis()->SetTitleOffset(1.1);
     hist5->GetYaxis()->SetLabelSize(0.03);
     hist5->GetYaxis()->SetTitleSize(0.04);
-    hist5->GetXaxis()->SetTitle("t#bar{t}_{P_{t}}(GeV/c)");
+    hist5->GetXaxis()->SetTitle("P_{t}_{t#bar{t}}(GeV/c)");
     hist5->GetYaxis()->SetTitle("A_{c_{ele}}");
-    TLegend *legend3 = new TLegend(0.7, 0.7, 0.9, 0.9);
-    legend3->AddEntry(hist5, "TTGamma", "E1P");
-    legend3->AddEntry(hist6, "TTbar", "E1P");
-    legend3->Draw("same");
+    TLegend *legend3 = new TLegend(0.1, 0.15, 0.3, 0.25);
+    legend3->AddEntry(hist5, "t#bar{t} + #gamma", "5pf");
+    legend3->AddEntry(hist6, "t#bar{t}", "E1P");
+    legend3->Draw("E4");
     c3->Update();
     c3->SaveAs("/eos/user/s/ssnehshu/temp/Ac_vs_ttbar_transversemomentum_compare_Electron_Channel.png");
 
     TCanvas *c4 = new TCanvas("c4", "Charge Asymmetry vs TTbar Transverse Momentum Muon Channel");
-    hist7->Draw();
-    hist8->Draw("same");
+    hist7->Draw("HIST E2");
+    hist8->Draw("SAME");
     hist7->SetStats(kFALSE);
     hist8->SetStats(kFALSE);
     hist7->GetXaxis()->SetTitleSize(0.04);
     hist7->GetYaxis()->SetTitleOffset(1.1);
     hist7->GetYaxis()->SetLabelSize(0.03);
     hist7->GetYaxis()->SetTitleSize(0.04);
-    hist7->GetXaxis()->SetTitle("t#bar{t}_{P_{t}}(GeV/c)");
+    hist7->GetXaxis()->SetTitle("P_{t}_{t#bar{t}}(GeV/c)");
     hist7->GetYaxis()->SetTitle("A_{c_{mu}}");
-    TLegend *legend4 = new TLegend(0.7, 0.7, 0.9, 0.9);
-    legend4->AddEntry(hist7, "TTGamma", "E1P");
-    legend4->AddEntry(hist8, "TTbar", "E1P");
-    legend4->Draw("same");
+    TLegend *legend4 = new TLegend(0.1, 0.15, 0.3, 0.25);
+    legend4->AddEntry(hist7, "t#bar{t} + #gamma", "5pf");
+    legend4->AddEntry(hist8, "t#bar{t}", "E1P");
+    legend4->Draw("E4");
     c4->Update();
     c4->SaveAs("/eos/user/s/ssnehshu/temp/Ac_vs_ttbar_transversemomentum_compare_Muon_Channel.png");
 
     TCanvas *c5 = new TCanvas("c5", "Charge Asymmetry vs Photon transverse momentum Electron Channel");
-    hist9->Draw();
-    hist10->Draw("same");
+    hist9->Draw("HIST E2");
+    hist10->Draw("SAME");
     hist9->SetStats(kFALSE);
     hist10->SetStats(kFALSE);
     hist9->GetXaxis()->SetTitleSize(0.04);
@@ -249,16 +265,16 @@ void Ac()
     hist9->GetYaxis()->SetTitleSize(0.04);
     hist9->GetXaxis()->SetTitle("#gamma_{p_{t}} (GeV/c)");
     hist9->GetYaxis()->SetTitle("A_{c_{ele}}");
-    TLegend *legend5 = new TLegend(0.7, 0.7, 0.9, 0.9);
-    legend5->AddEntry(hist9, "TTGamma", "E1P");
-    legend5->AddEntry(hist10, "TTbar", "E1P");
-    legend5->Draw("same");
+    TLegend *legend5 = new TLegend(0.1, 0.15, 0.3, 0.25);
+    legend5->AddEntry(hist9,"t#bar{t} + #gamma", "5pf");
+    legend5->AddEntry(hist10, "t#bar{t}", "E1P");
+    legend5->Draw("E4");
     c5->Update();
     c5->SaveAs("/eos/user/s/ssnehshu/temp/Ac_vs_photon_pt_compare_electron_Channel.png");
 
     TCanvas *c6 = new TCanvas("c6", "Charge Asymmetry vs  Photon transverse momentum Muon Channel");
-    hist11->Draw();
-    hist12->Draw("same");
+    hist11->Draw("HIST E2");
+    hist12->Draw("SAME");
     hist11->SetStats(kFALSE);
     hist12->SetStats(kFALSE);
     hist11->GetXaxis()->SetTitleSize(0.04);
@@ -267,10 +283,10 @@ void Ac()
     hist11->GetYaxis()->SetTitleSize(0.04);
     hist11->GetXaxis()->SetTitle("#gamma_{p_{t}} (GeV/c)");
     hist11->GetYaxis()->SetTitle("A_{c_{mu}}");
-    TLegend *legend6 = new TLegend(0.7, 0.7, 0.9, 0.9);
-    legend6->AddEntry(hist11, "TTGamma", "E1P");
-    legend6->AddEntry(hist12, "TTbar", "E1P");
-    legend6->Draw("same");
+    TLegend *legend6 = new TLegend(0.1, 0.15, 0.3, 0.25);
+    legend6->AddEntry(hist11, "t#bar{t} + #gamma", "5pf");
+    legend6->AddEntry(hist12, "t#bar{t}", "E1P");
+    legend6->Draw("E4");
     c6->Update();
     c6->SaveAs("/eos/user/s/ssnehshu/temp/Ac_vs_photon_pt_compare_Muon_Channel.png");
 
